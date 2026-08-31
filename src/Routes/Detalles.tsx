@@ -7,7 +7,8 @@ import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
 
-const SERVER = "http://localhost:3000";
+const SERVER = import.meta.env.VITE_API_URL;
+// const SERVER = "http://localhost:3000";
 const ROUTE1 = "/clases";
 const ROUTE2 = "/alumnos";
 

@@ -2,7 +2,8 @@ import { useNavigate } from "react-router-dom";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
 
-const SERVER = "http://localhost:3000";
+const SERVER = import.meta.env.VITE_API_URL;
+// const SERVER = "http://localhost:3000";
 const ROUTE = "/clases";
 
 interface FormProp {

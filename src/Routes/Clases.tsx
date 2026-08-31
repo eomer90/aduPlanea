@@ -9,7 +9,8 @@ type TypeClase = TypeClaseNueva & {
   _id: string;
 };
 
-const SERVER = "http://localhost:3000";
+const SERVER = import.meta.env.VITE_API_URL;
+// const SERVER = "http://localhost:3000";
 const ROUTE = "/clases";
 
 function Clases() {

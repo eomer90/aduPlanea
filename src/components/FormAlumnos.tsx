@@ -1,7 +1,8 @@
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
 import nuevoAlumno from "../Types/TypeNuevoAlumno";
 
-const SERVER = "http://localhost:3000";
+const SERVER = import.meta.env.VITE_API_URL;
+// const SERVER = "http://localhost:3000";
 const ROUTE = "/alumnos";
 
 interface FormProp {
