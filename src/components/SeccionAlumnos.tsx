@@ -3,6 +3,7 @@ import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
 import nuevoAlumno from "../Types/TypeNuevoAlumno";
 import FormAlumnos from "./FormAlumnos";
 import ModalLista from "../components/ModalLista";
+import DetalleAlumno from "../components/DetalleAlumno";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
@@ -18,8 +19,9 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
   const [mostrarFormAlumnos, setMostrarFormALumnos] = useState<Boolean>(false);
   const [mostrarBotonAlumnos, setMostrarBotonAlumnos] = useState<Boolean>(true);
   const [modalPasarLista, setModalPasarLista] = useState<Boolean>(false);
+  const [modalDetalleAlumno, setModalDetalleAlumno] = useState<boolean>(false);
+  const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<string>("");
 
-  // Estadísticas
   const totalAsistencias = alumnos.reduce(
     (total, alumno) =>
       total +
@@ -52,9 +54,13 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
     a.apellidoPaterno.localeCompare(b.apellidoPaterno),
   );
 
+  const verDetalles = (id: string) => {
+    setModalDetalleAlumno(true);
+    setAlumnoSeleccionado(id);
+  };
+
   return (
     <section className="mt-6 space-y-6">
-      {/* Estadísticas */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5">
           <h2 className="font-semibold text-slate-900">
@@ -67,7 +73,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Asistencias */}
           <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
             <p className="text-sm font-medium text-emerald-700">Asistencias</p>
 
@@ -78,7 +83,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
             <p className="mt-1 text-xs text-emerald-600">Registros presentes</p>
           </div>
 
-          {/* Faltas */}
           <div className="rounded-xl border border-red-100 bg-red-50 p-4">
             <p className="text-sm font-medium text-red-700">Faltas</p>
 
@@ -89,7 +93,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
             <p className="mt-1 text-xs text-red-600">Registros de falta</p>
           </div>
 
-          {/* Retardos */}
           <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
             <p className="text-sm font-medium text-amber-700">Retardos</p>
 
@@ -100,7 +103,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
             <p className="mt-1 text-xs text-amber-600">Llegadas tarde</p>
           </div>
 
-          {/* Justificados */}
           <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
             <p className="text-sm font-medium text-indigo-700">Justificados</p>
 
@@ -113,9 +115,7 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
         </div>
       </div>
 
-      {/* Alumnos */}
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {/* Encabezado */}
         <div className="flex items-center justify-between border-b border-slate-200 p-6">
           <div>
             <h2 className="font-semibold text-slate-900">Alumnos</h2>
@@ -130,7 +130,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
           </span>
         </div>
 
-        {/* Acciones */}
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
           <p className="text-sm text-slate-500">
             Gestiona la asistencia y evaluación del grupo.
@@ -154,7 +153,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
           </div>
         </div>
 
-        {/* Lista */}
         <div>
           {alumnosOrdenados.length > 0 ? (
             <div className="flex flex-col gap-4 p-6">
@@ -210,7 +208,8 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
                         <td className="px-2 py-4">
                           <button
                             type="button"
-                            className="max-w-full truncate text-left"
+                            className="max-w-full cursor-pointer truncate text-left"
+                            onClick={() => verDetalles(a._id)}
                           >
                             <p className="truncate text-sm font-semibold text-slate-700 transition hover:text-indigo-600">
                               {a.nombre} {a.apellidoPaterno} {a.apellidoMaterno}
@@ -256,7 +255,6 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
           )}
         </div>
 
-        {/* Agregar alumnos */}
         <div className="border-t border-slate-200 p-6">
           {mostrarFormAlumnos && (
             <FormAlumnos
@@ -285,11 +283,19 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
         </div>
       </section>
 
-      {/* Modal */}
       {modalPasarLista && (
         <ModalLista
           alumnos={alumnos}
           setModalPasarLista={setModalPasarLista}
+          obtenerAlumnos={obtenerAlumnos}
+        />
+      )}
+
+      {modalDetalleAlumno && (
+        <DetalleAlumno
+          alumnoSeleccionado={alumnoSeleccionado}
+          setAlumnoSeleccionado={setAlumnoSeleccionado}
+          setModalDetalleAlumno={setModalDetalleAlumno}
           obtenerAlumnos={obtenerAlumnos}
         />
       )}

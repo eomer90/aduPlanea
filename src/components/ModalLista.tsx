@@ -26,6 +26,41 @@ function ModalLista({
   const [estados, setEstados] = useState<TypeEstado[]>([]);
   const [observaciones, setObservaciones] = useState<TypeObservaciones[]>([]);
 
+  const ponerFecha = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nuevaFecha = e.target.value;
+
+    setFecha(nuevaFecha);
+
+    const buscarAlumnos = alumnos.filter((a) =>
+      a.asistencias.some((asis) => asis.fecha === nuevaFecha),
+    );
+
+    const antiguosEstados = buscarAlumnos.map((a) => {
+      const asistencia = a.asistencias.find(
+        (asis) => asis.fecha === nuevaFecha,
+      );
+
+      return {
+        id: a._id,
+        estado: asistencia!.estado,
+      };
+    });
+
+    const antiguasObservaciones = buscarAlumnos.map((a) => {
+      const asistencia = a.asistencias.find(
+        (asis) => asis.fecha === nuevaFecha,
+      );
+
+      return {
+        id: a._id,
+        observaciones: asistencia!.observaciones || "",
+      };
+    });
+
+    setEstados(antiguosEstados);
+    setObservaciones(antiguasObservaciones);
+  };
+
   const seleccionarEstado = (
     id: string,
     estado: "presente" | "falta" | "retardo" | "justificado",
@@ -124,7 +159,6 @@ function ModalLista({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
     >
       <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl">
-        {/* Encabezado */}
         <div className="border-b border-slate-200 px-6 py-5">
           <div className="flex items-start justify-between">
             <div>
@@ -147,7 +181,6 @@ function ModalLista({
           </div>
         </div>
 
-        {/* Fecha */}
         <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
           <label className="block max-w-xs">
             <span className="text-sm font-medium text-slate-700">
@@ -158,13 +191,12 @@ function ModalLista({
               type="date"
               name="fecha"
               value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
+              onChange={ponerFecha}
               className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
         </div>
 
-        {/* Lista */}
         <div className="max-h-[55vh] overflow-y-auto px-6 py-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
@@ -183,7 +215,6 @@ function ModalLista({
                 className="border-b border-slate-100 px-3 py-2 last:border-b-0 hover:bg-slate-50"
               >
                 <div className="flex items-center justify-between gap-3">
-                  {/* Alumno */}
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="w-5 text-xs text-slate-400">
                       {index + 1}.
@@ -194,111 +225,75 @@ function ModalLista({
                     </p>
                   </div>
 
-                  {/* Estados */}
-                  <div className="flex shrink-0 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => seleccionarEstado(a._id, "presente")}
-                      className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
-                        estados.find((e) => e.id === a._id)?.estado ===
-                        "presente"
-                          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                          : "border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
-                      }`}
-                    >
-                      <span
-                        className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[9px] ${
+                  <div className="flex shrink-0 gap-3">
+                    <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-emerald-700">
+                      <input
+                        type="checkbox"
+                        disabled={fecha === ""}
+                        checked={
                           estados.find((e) => e.id === a._id)?.estado ===
                           "presente"
-                            ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-slate-300"
-                        }`}
-                      >
-                        ✓
-                      </span>
+                        }
+                        onChange={() => seleccionarEstado(a._id, "presente")}
+                        className="h-4 w-4 accent-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      />
                       Presente
-                    </button>
+                    </label>
 
-                    <button
-                      type="button"
-                      onClick={() => seleccionarEstado(a._id, "falta")}
-                      className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
-                        estados.find((e) => e.id === a._id)?.estado === "falta"
-                          ? "border-red-500 bg-red-50 text-red-700"
-                          : "border-slate-200 text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700"
-                      }`}
-                    >
-                      <span
-                        className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[9px] ${
+                    <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-red-700">
+                      <input
+                        type="checkbox"
+                        disabled={fecha === ""}
+                        checked={
                           estados.find((e) => e.id === a._id)?.estado ===
                           "falta"
-                            ? "border-red-500 bg-red-500 text-white"
-                            : "border-slate-300"
-                        }`}
-                      >
-                        ✓
-                      </span>
+                        }
+                        onChange={() => seleccionarEstado(a._id, "falta")}
+                        className="h-4 w-4 accent-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      />
                       Falta
-                    </button>
+                    </label>
 
-                    <button
-                      type="button"
-                      onClick={() => seleccionarEstado(a._id, "retardo")}
-                      className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
-                        estados.find((e) => e.id === a._id)?.estado ===
-                        "retardo"
-                          ? "border-amber-500 bg-amber-50 text-amber-700"
-                          : "border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
-                      }`}
-                    >
-                      <span
-                        className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[9px] ${
+                    <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-amber-700">
+                      <input
+                        type="checkbox"
+                        disabled={fecha === ""}
+                        checked={
                           estados.find((e) => e.id === a._id)?.estado ===
                           "retardo"
-                            ? "border-amber-500 bg-amber-500 text-white"
-                            : "border-slate-300"
-                        }`}
-                      >
-                        ✓
-                      </span>
+                        }
+                        onChange={() => seleccionarEstado(a._id, "retardo")}
+                        className="h-4 w-4 accent-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      />
                       Retardo
-                    </button>
+                    </label>
 
-                    <button
-                      type="button"
-                      onClick={() => seleccionarEstado(a._id, "justificado")}
-                      className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
-                        estados.find((e) => e.id === a._id)?.estado ===
-                        "justificado"
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                          : "border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
-                      }`}
-                    >
-                      <span
-                        className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[9px] ${
+                    <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-indigo-700">
+                      <input
+                        type="checkbox"
+                        disabled={fecha === ""}
+                        checked={
                           estados.find((e) => e.id === a._id)?.estado ===
                           "justificado"
-                            ? "border-indigo-500 bg-indigo-500 text-white"
-                            : "border-slate-300"
-                        }`}
-                      >
-                        ✓
-                      </span>
+                        }
+                        onChange={() => seleccionarEstado(a._id, "justificado")}
+                        className="h-4 w-4 accent-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+                      />
                       Justificado
-                    </button>
+                    </label>
                   </div>
                 </div>
 
-                {/* Observaciones */}
                 <div className="mt-1.5 pl-7">
                   <input
                     type="text"
+                    disabled={fecha === ""}
                     name="observaciones"
                     placeholder="Observación..."
                     onChange={(e) =>
                       guardarObservaciones(a._id, e.target.value)
                     }
-                    className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-100"
+                    className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -306,7 +301,6 @@ function ModalLista({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-4">
           <span className="text-sm text-slate-400">
             {alumnos.length} alumnos
