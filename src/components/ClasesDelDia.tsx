@@ -68,45 +68,58 @@ function ClasesDelDia() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {clasesDia.map((clase) => {
-            const horarioHoy = clase.horarios.filter(
-              (h) => h.dia === semana[diaSemana],
-            );
+          {[...clasesDia]
+            .sort((a, b) => {
+              const horarioA = a.horarios.find(
+                (h) => h.dia === semana[diaSemana],
+              );
 
-            return (
-              <button
-                type="button"
-                onClick={() => navigate(`/clases/${clase._id}`)}
-                key={clase._id}
-                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"
-              >
-                <div className="p-4">
-                  <h3 className="font-semibold text-slate-800">
-                    {clase.nombre}
-                  </h3>
+              const horarioB = b.horarios.find(
+                (h) => h.dia === semana[diaSemana],
+              );
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    {clase.materia} · {clase.grado}° {clase.grupo}
-                  </p>
+              return horarioA!.inicio.localeCompare(horarioB!.inicio);
+            })
+            .map((clase) => {
+              const horarioHoy = clase.horarios.filter(
+                (h) => h.dia === semana[diaSemana],
+              );
+              return (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/clases/${clase._id}`)}
+                  key={clase._id}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"
+                >
+                  <div className="p-4">
+                    <h3 className="font-semibold text-slate-800">
+                      {clase.nombre}
+                    </h3>
 
-                  <div className="mt-3 border-b border-slate-200 pb-3">
-                    <p className="text-sm text-slate-500">Salón: Por asignar</p>
-                  </div>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {clase.materia} · {clase.grado}° {clase.grupo}
+                    </p>
 
-                  <div className="mt-3">
-                    {horarioHoy.map((horario, index) => (
-                      <p
-                        key={index}
-                        className="text-sm font-medium text-indigo-600"
-                      >
-                        Horario: {horario.inicio} - {horario.fin}
+                    <div className="mt-3 border-b border-slate-200 pb-3">
+                      <p className="text-sm text-slate-500">
+                        Salón: Por asignar
                       </p>
-                    ))}
+                    </div>
+
+                    <div className="mt-3">
+                      {horarioHoy.map((horario, index) => (
+                        <p
+                          key={index}
+                          className="text-sm font-medium text-indigo-600"
+                        >
+                          Horario: {horario.inicio} - {horario.fin}
+                        </p>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
         </div>
       )}
     </div>
