@@ -31,7 +31,7 @@ function Tarjetas({ clases }: ClasesProps) {
                 <p className="mt-1 text-sm text-slate-500">{c.nombre}</p>
               </div>
 
-              <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700">
+              <span className="rounded-full bg-indigo-50 px-4 py-2 text-lg font-medium text-indigo-700">
                 {c.grupo}
               </span>
             </div>

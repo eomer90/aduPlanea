@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
+import ModalCargando from "./ModalCargando";
 
 interface Prop {
   alumnoSeleccionado: string;
   setAlumnoSeleccionado: React.Dispatch<React.SetStateAction<string>>;
   setModalDetalleAlumno: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
+  claseSeleccionada: TypeClaseNueva;
 }
 
 const SERVER = import.meta.env.VITE_API_URL;
@@ -16,11 +19,13 @@ function DetalleAlumno({
   setAlumnoSeleccionado,
   setModalDetalleAlumno,
   obtenerAlumnos,
+  claseSeleccionada,
 }: Prop) {
   const [alumnoEncontrado, setAlumnoEncontrado] = useState<TypeNuevoAlumno>();
-  //   const [editarAlumno, setEditarAlumno] = useState<boolean>(false);
+  const [cargando, setCargando] = useState<boolean>(false);
 
   const obtenerAlumno = async () => {
+    setCargando(true);
     try {
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`);
       const res = await req.json();
@@ -33,6 +38,8 @@ function DetalleAlumno({
       setAlumnoEncontrado(res.alumnoEncontrado);
     } catch (error) {
       console.log(error);
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -55,22 +62,32 @@ function DetalleAlumno({
 
   const cambiarEstadoAsistencia = (
     index: number,
-    estado: "presente" | "falta" | "retardo" | "justificado",
+    estado: "presente" | "falta" | "retardo" | "justificado" | "",
   ) => {
-    const nuevasAsistencias = [...alumnoEncontrado!.asistencias];
+    const nuevasAsistencias = [...asistencias];
 
     nuevasAsistencias[index] = {
       ...nuevasAsistencias[index],
-      estado: estado,
+      ...(estado === "" ? { fecha: "" } : { estado }),
     };
+
+    const nuevasMaterias = alumnoEncontrado!.materias.map((mat) =>
+      mat.nombre === claseSeleccionada.nombre
+        ? {
+            ...mat,
+            asistencias: nuevasAsistencias,
+          }
+        : mat,
+    );
 
     setAlumnoEncontrado({
       ...alumnoEncontrado!,
-      asistencias: nuevasAsistencias,
+      materias: nuevasMaterias,
     });
   };
 
   const guardarCambios = async () => {
+    setCargando(true);
     try {
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         method: "PATCH",
@@ -92,6 +109,8 @@ function DetalleAlumno({
       obtenerAlumnos();
     } catch (error) {
       console.log(error);
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -126,7 +145,11 @@ function DetalleAlumno({
     return null;
   }
 
-  const asistencias = alumnoEncontrado.asistencias ?? [];
+  const materia = alumnoEncontrado.materias.find(
+    (materia) => materia.nombre === claseSeleccionada.nombre,
+  );
+
+  const asistencias = materia?.asistencias ?? [];
 
   const presentes = asistencias.filter((a) => a.estado === "presente").length;
 
@@ -149,7 +172,7 @@ function DetalleAlumno({
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Información y asistencia del alumno.
+              Información del alumno.
             </p>
           </div>
 
@@ -239,7 +262,7 @@ function DetalleAlumno({
                 <input
                   type="text"
                   name="calificacion"
-                  value={alumnoEncontrado.calificacion ?? "Sin calificación"}
+                  value={materia?.calificaciones || "Sin calificación"}
                   onChange={handleChange}
                   className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
                 />
@@ -264,7 +287,7 @@ function DetalleAlumno({
                     </span>
 
                     <select
-                      value={asistencia.estado}
+                      value={asistencia.fecha === "" ? "" : asistencia.estado}
                       onChange={(e) =>
                         cambiarEstadoAsistencia(
                           index,
@@ -272,19 +295,12 @@ function DetalleAlumno({
                             | "presente"
                             | "falta"
                             | "retardo"
-                            | "justificado",
+                            | "justificado"
+                            | "",
                         )
                       }
-                      className={`rounded-md border px-2.5 py-1.5 text-xs font-medium outline-none ${
-                        asistencia.estado === "presente"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : asistencia.estado === "falta"
-                            ? "border-red-200 bg-red-50 text-red-700"
-                            : asistencia.estado === "retardo"
-                              ? "border-amber-200 bg-amber-50 text-amber-700"
-                              : "border-indigo-200 bg-indigo-50 text-indigo-700"
-                      }`}
                     >
+                      <option value="">Quitar asistencia</option>
                       <option value="presente">Presente</option>
                       <option value="falta">Falta</option>
                       <option value="retardo">Retardo</option>
@@ -349,16 +365,10 @@ function DetalleAlumno({
           </button>
 
           <div className="flex gap-2">
-            {/* <button
-              type="button"
-              className="rounded-lg border border-amber-200 px-4 py-2.5 text-sm font-medium text-amber-600 transition hover:bg-amber-50"
-            >
-              Editar alumno
-            </button> */}
-
             <button
               type="button"
-              className="rounded-lg border border-emerald-200 px-4 py-2.5 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50"
+              disabled={cargando}
+              className="rounded-lg border border-emerald-200 px-4 py-2.5 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
               onClick={guardarCambios}
             >
               Guardar cambios
@@ -374,6 +384,7 @@ function DetalleAlumno({
           </div>
         </div>
       </div>
+      {cargando && <ModalCargando />}
     </div>
   );
 }

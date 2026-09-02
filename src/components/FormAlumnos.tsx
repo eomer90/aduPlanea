@@ -1,4 +1,5 @@
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import nuevoAlumno from "../Types/TypeNuevoAlumno";
 
 const SERVER = import.meta.env.VITE_API_URL;
@@ -11,6 +12,7 @@ interface FormProp {
   setFormAlumno: React.Dispatch<React.SetStateAction<TypeNuevoAlumno>>;
   setMostrarBotonAlumnos: React.Dispatch<React.SetStateAction<Boolean>>;
   obtenerAlumnos: () => Promise<void>;
+  claseSeleccionada: TypeClaseNueva;
 }
 function FormAlumnos({
   formAlumno,
@@ -18,6 +20,7 @@ function FormAlumnos({
   setMostrarFormALumnos,
   setMostrarBotonAlumnos,
   obtenerAlumnos,
+  claseSeleccionada,
 }: FormProp) {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -32,14 +35,20 @@ function FormAlumnos({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const nuevoArray = {
-      nombre: formAlumno.nombre.trim(),
-      apellidoPaterno: formAlumno.apellidoPaterno.trim(),
-      apellidoMaterno: formAlumno.apellidoMaterno.trim(),
+    const datos = {
+      nombre: formAlumno.nombre,
+      apellidoPaterno: formAlumno.apellidoPaterno,
+      apellidoMaterno: formAlumno.apellidoMaterno,
       grado: formAlumno.grado,
-      grupo: formAlumno.grupo.trim().toUpperCase(),
-      asistencias: [],
-      calificacion: "",
+      grupo: formAlumno.grupo,
+      materias: [
+        {
+          nombre: claseSeleccionada.nombre,
+          asistencias: [],
+          evaluaciones: [],
+          calificaciones: "",
+        },
+      ],
     };
     try {
       const req = await fetch(SERVER + ROUTE, {
@@ -47,7 +56,7 @@ function FormAlumnos({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(nuevoArray),
+        body: JSON.stringify(datos),
       });
       const res = await req.json();
       if (res.error) {

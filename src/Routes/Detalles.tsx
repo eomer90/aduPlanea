@@ -6,6 +6,7 @@ import SeccionAlumnos from "../components/SeccionAlumnos";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
+import ModalCargando from "../components/ModalCargando";
 
 const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";
@@ -22,22 +23,31 @@ function Detalles() {
   const [mostrarDetalles, setMostrarDetalles] = useState<Boolean>(true);
   const [mostrarAlumnos, setMostrarAlumnos] = useState<Boolean>(false);
   const [alumnos, setAlumnos] = useState<TypeAlumnos[]>([]);
+  const [cargando, setCargando] = useState<boolean>(false);
 
   const { id } = useParams();
 
   const obtenerClaseSeleccionada = async () => {
+    setCargando(true);
     try {
       const req = await fetch(`${SERVER}${ROUTE1}/${id}`);
       const res = await req.json();
+
+      if (res.error) {
+        console.log(res.mensaje);
+      }
 
       setClaseSeleccionada(res.claseEncontrada);
       console.log(res);
     } catch (error) {
       console.log(error);
+    } finally {
+      setCargando(false);
     }
   };
 
   const obtenerAlumnos = async () => {
+    setCargando(true);
     try {
       const req = await fetch(SERVER + ROUTE2);
       const res = await req.json();
@@ -51,6 +61,8 @@ function Detalles() {
       console.log(alumnosFiltrados);
     } catch (error) {
       console.log(error);
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -72,7 +84,6 @@ function Detalles() {
       <main className="ml-60 pt-16">
         <div className="mx-auto max-w-7xl p-8">
           <div className="mb-6 flex items-center justify-between">
-            {/* Información de la clase */}
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-900">
                 {claseSeleccionada.materia}
@@ -83,7 +94,6 @@ function Detalles() {
               </span>
             </div>
 
-            {/* Navegación de la clase */}
             <nav className="flex items-center gap-1 rounded-lg bg-slate-100 p-1">
               <button
                 type="button"
@@ -197,10 +207,15 @@ function Detalles() {
           )}
 
           {mostrarAlumnos && (
-            <SeccionAlumnos alumnos={alumnos} obtenerAlumnos={obtenerAlumnos} />
+            <SeccionAlumnos
+              alumnos={alumnos}
+              obtenerAlumnos={obtenerAlumnos}
+              claseSeleccionada={claseSeleccionada}
+            />
           )}
         </div>
       </main>
+      {cargando && <ModalCargando />}
     </div>
   );
 }

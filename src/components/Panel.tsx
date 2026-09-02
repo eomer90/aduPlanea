@@ -1,45 +1,73 @@
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
 function Panel() {
-  const navigate = useNavigate();
   return (
     <aside className="fixed top-16 bottom-0 left-0 w-60 border-r border-slate-200 bg-white">
       <nav className="flex flex-col gap-1 p-4">
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          className="rounded-lg bg-slate-100 px-4 py-3 text-left font-medium text-slate-800 transition hover:bg-slate-200"
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `rounded-lg px-4 py-3 text-left transition ${
+              isActive
+                ? "bg-slate-100 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`
+          }
         >
           Inicio
-        </button>
+        </NavLink>
 
-        <button
-          type="button"
-          onClick={() => navigate("/clases")}
-          className="rounded-lg bg-slate-100 px-4 py-3 text-left font-medium text-slate-800 transition hover:bg-slate-200"
+        <NavLink
+          to="/clases"
+          className={({ isActive }) =>
+            `rounded-lg px-4 py-3 text-left transition ${
+              isActive
+                ? "bg-slate-100 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`
+          }
         >
           Mis clases
-        </button>
+        </NavLink>
 
-        <button
-          type="button"
-          className="rounded-lg px-4 py-3 text-left text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        <NavLink
+          to="/recordatorios"
+          className={({ isActive }) =>
+            `rounded-lg px-4 py-3 text-left transition ${
+              isActive
+                ? "bg-slate-100 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`
+          }
         >
           Recordatorios
-        </button>
+        </NavLink>
 
-        <button
-          type="button"
-          className="rounded-lg px-4 py-3 text-left text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        <NavLink
+          to="/planeaciones"
+          className={({ isActive }) =>
+            `rounded-lg px-4 py-3 text-left transition ${
+              isActive
+                ? "bg-slate-100 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`
+          }
         >
           Planeaciones
-        </button>
+        </NavLink>
 
-        <button
-          type="button"
-          className="rounded-lg px-4 py-3 text-left text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        <NavLink
+          to="/configuracion"
+          className={({ isActive }) =>
+            `rounded-lg px-4 py-3 text-left transition ${
+              isActive
+                ? "bg-slate-100 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`
+          }
         >
           Configuración
-        </button>
+        </NavLink>
       </nav>
     </aside>
   );

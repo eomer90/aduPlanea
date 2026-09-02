@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import nuevoAlumno from "../Types/TypeNuevoAlumno";
 import FormAlumnos from "./FormAlumnos";
 import ModalLista from "../components/ModalLista";
@@ -12,9 +13,14 @@ type TypeAlumnos = TypeNuevoAlumno & {
 interface AlumnosProp {
   alumnos: TypeAlumnos[];
   obtenerAlumnos: () => Promise<void>;
+  claseSeleccionada: TypeClaseNueva;
 }
 
-function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
+function SeccionAlumnos({
+  alumnos,
+  obtenerAlumnos,
+  claseSeleccionada,
+}: AlumnosProp) {
   const [formAlumno, setFormAlumno] = useState<TypeNuevoAlumno>(nuevoAlumno);
   const [mostrarFormAlumnos, setMostrarFormALumnos] = useState<Boolean>(false);
   const [mostrarBotonAlumnos, setMostrarBotonAlumnos] = useState<Boolean>(true);
@@ -22,35 +28,55 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
   const [modalDetalleAlumno, setModalDetalleAlumno] = useState<boolean>(false);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<string>("");
 
-  const totalAsistencias = alumnos.reduce(
-    (total, alumno) =>
-      total +
-      alumno.asistencias.filter((asis) => asis.estado === "presente").length,
-    0,
-  );
+  const totalAsistencias = alumnos.reduce((total, alumno) => {
+    const materia = alumno.materias.find(
+      (materia) => materia.nombre === claseSeleccionada.nombre,
+    );
 
-  const totalFaltas = alumnos.reduce(
-    (total, alumno) =>
+    return (
       total +
-      alumno.asistencias.filter((asis) => asis.estado === "falta").length,
-    0,
-  );
+      (materia?.asistencias.filter((asis) => asis.estado === "presente")
+        .length ?? 0)
+    );
+  }, 0);
 
-  const totalRetardos = alumnos.reduce(
-    (total, alumno) =>
+  const totalFaltas = alumnos.reduce((total, alumno) => {
+    const materia = alumno.materias.find(
+      (materia) => materia.nombre === claseSeleccionada.nombre,
+    );
+
+    return (
       total +
-      alumno.asistencias.filter((asis) => asis.estado === "retardo").length,
-    0,
-  );
+      (materia?.asistencias.filter((asis) => asis.estado === "falta").length ??
+        0)
+    );
+  }, 0);
 
-  const totalJustificados = alumnos.reduce(
-    (total, alumno) =>
+  const totalRetardos = alumnos.reduce((total, alumno) => {
+    const materia = alumno.materias.find(
+      (materia) => materia.nombre === claseSeleccionada.nombre,
+    );
+
+    return (
       total +
-      alumno.asistencias.filter((asis) => asis.estado === "justificado").length,
-    0,
-  );
+      (materia?.asistencias.filter((asis) => asis.estado === "retardo")
+        .length ?? 0)
+    );
+  }, 0);
 
-  const alumnosOrdenados = alumnos.sort((a, b) =>
+  const totalJustificados = alumnos.reduce((total, alumno) => {
+    const materia = alumno.materias.find(
+      (materia) => materia.nombre === claseSeleccionada.nombre,
+    );
+
+    return (
+      total +
+      (materia?.asistencias.filter((asis) => asis.estado === "justificado")
+        .length ?? 0)
+    );
+  }, 0);
+
+  const alumnosOrdenados = [...alumnos].sort((a, b) =>
     a.apellidoPaterno.localeCompare(b.apellidoPaterno),
   );
 
@@ -187,17 +213,24 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
 
                 <tbody className="divide-y divide-slate-100">
                   {alumnos.map((a, index) => {
-                    const asistencias = a.asistencias.filter(
-                      (asis) => asis.estado === "presente",
-                    ).length;
+                    const materia = a.materias.find(
+                      (materia) => materia.nombre === claseSeleccionada.nombre,
+                    );
 
-                    const faltas = a.asistencias.filter(
-                      (asis) => asis.estado === "falta",
-                    ).length;
+                    const asistencias =
+                      materia?.asistencias.filter(
+                        (asis) => asis.estado === "presente",
+                      ).length ?? 0;
 
-                    const retardos = a.asistencias.filter(
-                      (asis) => asis.estado === "retardo",
-                    ).length;
+                    const faltas =
+                      materia?.asistencias.filter(
+                        (asis) => asis.estado === "falta",
+                      ).length ?? 0;
+
+                    const retardos =
+                      materia?.asistencias.filter(
+                        (asis) => asis.estado === "retardo",
+                      ).length ?? 0;
 
                     return (
                       <tr key={a._id} className="transition hover:bg-slate-50">
@@ -263,6 +296,7 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
               setFormAlumno={setFormAlumno}
               setMostrarBotonAlumnos={setMostrarBotonAlumnos}
               obtenerAlumnos={obtenerAlumnos}
+              claseSeleccionada={claseSeleccionada}
             />
           )}
 
@@ -288,6 +322,7 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
           alumnos={alumnos}
           setModalPasarLista={setModalPasarLista}
           obtenerAlumnos={obtenerAlumnos}
+          claseSeleccionada={claseSeleccionada}
         />
       )}
 
@@ -297,6 +332,7 @@ function SeccionAlumnos({ alumnos, obtenerAlumnos }: AlumnosProp) {
           setAlumnoSeleccionado={setAlumnoSeleccionado}
           setModalDetalleAlumno={setModalDetalleAlumno}
           obtenerAlumnos={obtenerAlumnos}
+          claseSeleccionada={claseSeleccionada}
         />
       )}
     </section>

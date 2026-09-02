@@ -4,6 +4,7 @@ import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import Tarjetas from "../components/Tarjetas";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
+import ModalCargando from "../components/ModalCargando";
 
 type TypeClase = TypeClaseNueva & {
   _id: string;
@@ -15,10 +16,12 @@ const ROUTE = "/clases";
 
 function Clases() {
   const [clases, setClases] = useState<TypeClase[]>([]);
+  const [cargando, setCargando] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
   const obtenerClases = async () => {
+    setCargando(true);
     try {
       const req = await fetch(SERVER + ROUTE);
 
@@ -30,6 +33,8 @@ function Clases() {
       console.log(res);
     } catch (error) {
       console.log(error);
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -68,6 +73,8 @@ function Clases() {
           <Tarjetas clases={clases} />
         </div>
       </main>
+
+      {cargando && <ModalCargando />}
     </div>
   );
 }

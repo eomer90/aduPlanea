@@ -1,9 +1,3 @@
-export interface TypeAsistencia {
-  fecha: string;
-  estado: "presente" | "falta" | "retardo" | "justificado";
-  observaciones: string;
-}
-
 export interface TypeEstado {
   id: string;
   estado: "presente" | "falta" | "retardo" | "justificado";
@@ -14,24 +8,40 @@ export interface TypeObservaciones {
   observaciones: string;
 }
 
+export type TypeAsistencia = {
+  fecha: string;
+  estado: "presente" | "falta" | "retardo" | "justificado";
+  observaciones: string;
+};
+
+export type TypeEvaluacion = {
+  tipoEvaluacion: string;
+  resultado: string;
+};
+
+export type TypeMaterias = {
+  nombre: string;
+  asistencias: TypeAsistencia[];
+  evaluaciones: TypeEvaluacion[];
+  calificaciones: string;
+};
+
 export interface TypeNuevoAlumno {
   nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
   grado: string;
   grupo: string;
-  asistencias: TypeAsistencia[];
-  calificacion: string;
+  materias: TypeMaterias[];
 }
 
-const nuevoAlumno: TypeNuevoAlumno = {
+const estadoInicial: TypeNuevoAlumno = {
   nombre: "",
   apellidoPaterno: "",
   apellidoMaterno: "",
   grado: "",
   grupo: "",
-  asistencias: [],
-  calificacion: "",
+  materias: [],
 };
 
-export default nuevoAlumno;
+export default estadoInicial;
