@@ -73,11 +73,9 @@ function ClasesDelDia() {
               const horarioA = a.horarios.find(
                 (h) => h.dia === semana[diaSemana],
               );
-
               const horarioB = b.horarios.find(
                 (h) => h.dia === semana[diaSemana],
               );
-
               return horarioA!.inicio.localeCompare(horarioB!.inicio);
             })
             .map((clase) => {
@@ -102,7 +100,7 @@ function ClasesDelDia() {
 
                     <div className="mt-3 border-b border-slate-200 pb-3">
                       <p className="text-sm text-slate-500">
-                        Salón: Por asignar
+                        Salón(es): {clase.salon}
                       </p>
                     </div>
 

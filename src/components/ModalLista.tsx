@@ -38,7 +38,7 @@ function ModalLista({
 
     const buscarAlumnos = alumnos.filter((a) => {
       const materia = a.materias.find(
-        (materia) => materia.nombre === claseSeleccionada.nombre,
+        (materia) => materia.nombre === claseSeleccionada.materia,
       );
 
       return materia?.asistencias.some((asis) => asis.fecha === nuevaFecha);
@@ -46,7 +46,7 @@ function ModalLista({
 
     const antiguosEstados = buscarAlumnos.map((a) => {
       const materia = a.materias.find(
-        (materia) => materia.nombre === claseSeleccionada.nombre,
+        (materia) => materia.nombre === claseSeleccionada.materia,
       );
 
       const asistencia = materia?.asistencias.find(
@@ -145,7 +145,7 @@ function ModalLista({
 
     const datos = {
       fecha,
-      materia: claseSeleccionada.nombre,
+      materia: claseSeleccionada.materia,
       asistencia,
     };
 

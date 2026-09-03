@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
 import SeccionAlumnos from "../components/SeccionAlumnos";
+import EditarClase from "../components/EditarClase";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
@@ -17,13 +18,24 @@ type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
 };
 
+type TypeClase = TypeClaseNueva & {
+  _id: string;
+};
+
+const defaultClaseSeleccionada = {
+  ...defaultClaseNueva,
+  _id: "",
+};
+
 function Detalles() {
-  const [claseSeleccionada, setClaseSeleccionada] =
-    useState<TypeClaseNueva>(defaultClaseNueva);
-  const [mostrarDetalles, setMostrarDetalles] = useState<Boolean>(true);
+  const [claseSeleccionada, setClaseSeleccionada] = useState<TypeClase>(
+    defaultClaseSeleccionada,
+  );
+  const [mostrarDetalles, setMostrarDetalles] = useState<boolean>(true);
   const [mostrarAlumnos, setMostrarAlumnos] = useState<Boolean>(false);
   const [alumnos, setAlumnos] = useState<TypeAlumnos[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
+  const [mostrarEditarClase, setMostrarEditarClase] = useState<boolean>(false);
 
   const { id } = useParams();
 
@@ -52,13 +64,25 @@ function Detalles() {
       const req = await fetch(SERVER + ROUTE2);
       const res = await req.json();
 
-      const alumnosFiltrados = res.alumnos.filter(
-        (a: TypeAlumnos) =>
+      const alumnosFiltrados = res.alumnos.filter((a: TypeAlumnos) => {
+        const materia = a.materias.some(
+          (m) => m.nombre === claseSeleccionada.materia,
+        );
+
+        return (
           a.grado === claseSeleccionada.grado &&
-          a.grupo === claseSeleccionada.grupo,
-      );
+          a.grupo === claseSeleccionada.grupo &&
+          materia
+        );
+      });
+      // const alumnosFiltrados = res.alumnos.filter(
+      //   (a: TypeAlumnos) =>
+      //     a.grado === claseSeleccionada.grado &&
+      //     a.grupo === claseSeleccionada.grupo,
+
+      // );
       setAlumnos(alumnosFiltrados);
-      console.log(alumnosFiltrados);
+      // console.log(alumnosFiltrados);
     } catch (error) {
       console.log(error);
     } finally {
@@ -71,10 +95,14 @@ function Detalles() {
   }, []);
 
   useEffect(() => {
-    if (claseSeleccionada.grado && claseSeleccionada.grupo) {
+    if (claseSeleccionada._id) {
       obtenerAlumnos();
     }
   }, [claseSeleccionada]);
+
+  useEffect(() => {
+    console.log(alumnos);
+  }, [alumnos]);
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800">
@@ -100,6 +128,7 @@ function Detalles() {
                 onClick={() => {
                   setMostrarDetalles(true);
                   setMostrarAlumnos(false);
+                  setMostrarEditarClase(false);
                 }}
                 className={`rounded-md px-4 py-2 text-sm transition ${
                   mostrarDetalles
@@ -115,6 +144,7 @@ function Detalles() {
                 onClick={() => {
                   setMostrarDetalles(false);
                   setMostrarAlumnos(true);
+                  setMostrarEditarClase(false);
                 }}
                 className={`rounded-md px-4 py-2 text-sm transition ${
                   mostrarAlumnos
@@ -127,7 +157,16 @@ function Detalles() {
 
               <button
                 type="button"
-                className="rounded-md px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-white hover:text-slate-700"
+                className={`rounded-md px-4 py-2 text-sm transition ${
+                  mostrarEditarClase
+                    ? "bg-white font-semibold text-indigo-600 shadow-sm"
+                    : "font-medium text-slate-500 hover:bg-white hover:text-slate-700"
+                }`}
+                onClick={() => {
+                  setMostrarDetalles(false);
+                  setMostrarAlumnos(false);
+                  setMostrarEditarClase(true);
+                }}
               >
                 Editar clase
               </button>
@@ -211,6 +250,15 @@ function Detalles() {
               alumnos={alumnos}
               obtenerAlumnos={obtenerAlumnos}
               claseSeleccionada={claseSeleccionada}
+            />
+          )}
+
+          {mostrarEditarClase && (
+            <EditarClase
+              claseSeleccionada={claseSeleccionada}
+              setMostrarEditarClase={setMostrarEditarClase}
+              setMostrarDetalles={setMostrarDetalles}
+              obtenerClaseSeleccionada={obtenerClaseSeleccionada}
             />
           )}
         </div>

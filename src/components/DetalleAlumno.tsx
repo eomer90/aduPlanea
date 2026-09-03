@@ -72,7 +72,7 @@ function DetalleAlumno({
     };
 
     const nuevasMaterias = alumnoEncontrado!.materias.map((mat) =>
-      mat.nombre === claseSeleccionada.nombre
+      mat.nombre === claseSeleccionada.materia
         ? {
             ...mat,
             asistencias: nuevasAsistencias,
@@ -146,7 +146,7 @@ function DetalleAlumno({
   }
 
   const materia = alumnoEncontrado.materias.find(
-    (materia) => materia.nombre === claseSeleccionada.nombre,
+    (materia) => materia.nombre === claseSeleccionada.materia,
   );
 
   const asistencias = materia?.asistencias ?? [];
@@ -233,15 +233,21 @@ function DetalleAlumno({
               </div>
 
               <div className="rounded-lg bg-white p-3">
-                <label className="text-xs text-slate-400">Grado</label>
+                <label className="rounded-lg bg-white p-3">
+                  <span className="text-xs text-slate-400">Grado</span>
 
-                <input
-                  type="text"
-                  name="grado"
-                  value={`${alumnoEncontrado.grado}°`}
-                  onChange={handleChange}
-                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
-                />
+                  <select
+                    name="grado"
+                    value={alumnoEncontrado.grado}
+                    onChange={handleChange}
+                    className="mt-1 w-full cursor-pointer rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
+                  >
+                    <option value="">Selecciona</option>
+                    <option value="1">1°</option>
+                    <option value="2">2°</option>
+                    <option value="3">3°</option>
+                  </select>
+                </label>
               </div>
 
               <div className="rounded-lg bg-white p-3">

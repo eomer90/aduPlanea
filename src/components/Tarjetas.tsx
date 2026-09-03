@@ -66,6 +66,13 @@ function Tarjetas({ clases }: ClasesProps) {
               </div>
 
               <div className="border-t border-slate-100 pt-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500">Salón(es)</span>
+                  <span className="font-medium text-slate-700">{c.salon}</span>
+                </div>
+              </div>
+
+              {/* <div className="border-t border-slate-100 pt-3">
                 <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
                   Periodo
                 </p>
@@ -73,14 +80,14 @@ function Tarjetas({ clases }: ClasesProps) {
                 <p className="text-sm text-slate-600">
                   {c.periodoInicio} — {c.periodoFin}
                 </p>
-              </div>
+              </div> */}
             </div>
 
-            <div className="mt-6 flex items-center justify-end border-t border-slate-100 pt-4">
+            {/* <div className="mt-6 flex items-center justify-end border-t border-slate-100 pt-4">
               <span className="text-sm font-medium text-indigo-600 transition group-hover:text-indigo-700">
                 Ver clase →
               </span>
-            </div>
+            </div> */}
           </div>
         </button>
       ))}

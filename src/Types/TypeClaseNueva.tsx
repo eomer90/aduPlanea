@@ -9,6 +9,7 @@ export type TypeClaseNueva = {
   materia: string;
   grado: string;
   grupo: string;
+  salon: string;
   horarios: Horario[];
   periodoInicio: string;
   periodoFin: string;
@@ -19,6 +20,7 @@ const defaultClaseNueva: TypeClaseNueva = {
   materia: "",
   grado: "",
   grupo: "",
+  salon: "",
   horarios: [],
   periodoInicio: "",
   periodoFin: "",

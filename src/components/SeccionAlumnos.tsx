@@ -30,7 +30,7 @@ function SeccionAlumnos({
 
   const totalAsistencias = alumnos.reduce((total, alumno) => {
     const materia = alumno.materias.find(
-      (materia) => materia.nombre === claseSeleccionada.nombre,
+      (materia) => materia.nombre === claseSeleccionada.materia,
     );
 
     return (
@@ -42,7 +42,7 @@ function SeccionAlumnos({
 
   const totalFaltas = alumnos.reduce((total, alumno) => {
     const materia = alumno.materias.find(
-      (materia) => materia.nombre === claseSeleccionada.nombre,
+      (materia) => materia.nombre === claseSeleccionada.materia,
     );
 
     return (
@@ -54,7 +54,7 @@ function SeccionAlumnos({
 
   const totalRetardos = alumnos.reduce((total, alumno) => {
     const materia = alumno.materias.find(
-      (materia) => materia.nombre === claseSeleccionada.nombre,
+      (materia) => materia.nombre === claseSeleccionada.materia,
     );
 
     return (
@@ -66,7 +66,7 @@ function SeccionAlumnos({
 
   const totalJustificados = alumnos.reduce((total, alumno) => {
     const materia = alumno.materias.find(
-      (materia) => materia.nombre === claseSeleccionada.nombre,
+      (materia) => materia.nombre === claseSeleccionada.materia,
     );
 
     return (
@@ -214,7 +214,7 @@ function SeccionAlumnos({
                 <tbody className="divide-y divide-slate-100">
                   {alumnos.map((a, index) => {
                     const materia = a.materias.find(
-                      (materia) => materia.nombre === claseSeleccionada.nombre,
+                      (materia) => materia.nombre === claseSeleccionada.materia,
                     );
 
                     const asistencias =
@@ -301,7 +301,7 @@ function SeccionAlumnos({
           )}
 
           {mostrarBotonAlumnos && (
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -311,6 +311,17 @@ function SeccionAlumnos({
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
               >
                 + Agregar alumno
+              </button>
+
+              <button
+                type="button"
+                // onClick={() => {
+                //   setMostrarFormALumnos(true);
+                //   setMostrarBotonAlumnos(false);
+                // }}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+              >
+                Importar alumnos de otra clase
               </button>
             </div>
           )}
