@@ -180,7 +180,7 @@ function SeccionAlumnos({
         </div>
 
         <div>
-          {alumnosOrdenados.length > 0 ? (
+          {alumnos.length > 0 ? (
             <div className="flex flex-col gap-4 p-6">
               <table className="w-full table-fixed">
                 <thead>
@@ -212,7 +212,7 @@ function SeccionAlumnos({
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
-                  {alumnos.map((a, index) => {
+                  {alumnosOrdenados.map((a, index) => {
                     const materia = a.materias.find(
                       (materia) => materia.nombre === claseSeleccionada.materia,
                     );
