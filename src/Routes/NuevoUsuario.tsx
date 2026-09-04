@@ -20,7 +20,7 @@ function NuevoUsuario() {
   const [formUsuario, setFormUsuario] =
     useState<TypeNuevoUsuario>(nuevoUsuarioInicial);
   const [cargando, setCargando] = useState<boolean>(false);
-  const [escuelas, setEscuelas] = useState<TypeEscuela>(escuelaInicial);
+  //   const [escuelas, setEscuelas] = useState<TypeEscuela>(escuelaInicial);
 
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ function NuevoUsuario() {
     try {
       const req = await fetch(`${SERVER}/escuelas`);
       const res = await req.json();
-      setEscuelas(res.escuelasEncontradas);
+      //   setEscuelas(res.escuelasEncontradas);
       console.log(res.escuelasEncontradas);
     } catch (error) {
       console.log(error);
