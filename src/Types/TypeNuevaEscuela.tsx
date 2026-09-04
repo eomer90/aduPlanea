@@ -1,15 +1,3 @@
-export type TypeEscuela = {
-  nombreEscuela: string;
-  nivelEducativo: string;
-};
-
-const escuelaInicial: TypeEscuela = {
-  nombreEscuela: "",
-  nivelEducativo: "",
-};
-
-export default escuelaInicial;
-
 export type TypeRegistro = {
   nombreEscuela: string;
   nivelEducativo: string;
