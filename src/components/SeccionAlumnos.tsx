@@ -5,6 +5,7 @@ import nuevoAlumno from "../Types/TypeNuevoAlumno";
 import FormAlumnos from "./FormAlumnos";
 import ModalLista from "../components/ModalLista";
 import DetalleAlumno from "../components/DetalleAlumno";
+import ModalImportar from "./ModalImportar";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
@@ -27,6 +28,7 @@ function SeccionAlumnos({
   const [modalPasarLista, setModalPasarLista] = useState<Boolean>(false);
   const [modalDetalleAlumno, setModalDetalleAlumno] = useState<boolean>(false);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<string>("");
+  const [modalImportar, setModalImportar] = useState<boolean>(false);
 
   const totalAsistencias = alumnos.reduce((total, alumno) => {
     const materia = alumno.materias.find(
@@ -315,10 +317,7 @@ function SeccionAlumnos({
 
               <button
                 type="button"
-                // onClick={() => {
-                //   setMostrarFormALumnos(true);
-                //   setMostrarBotonAlumnos(false);
-                // }}
+                onClick={() => setModalImportar(true)}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
               >
                 Importar alumnos de otra clase
@@ -346,6 +345,8 @@ function SeccionAlumnos({
           claseSeleccionada={claseSeleccionada}
         />
       )}
+
+      {modalImportar && <ModalImportar setModalImportar={setModalImportar} />}
     </section>
   );
 }

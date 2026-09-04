@@ -23,7 +23,12 @@ function Clases() {
   const obtenerClases = async () => {
     setCargando(true);
     try {
-      const req = await fetch(SERVER + ROUTE);
+      const token = localStorage.getItem("token");
+      const req = await fetch(SERVER + ROUTE, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!req.ok) {
         throw new Error(`Error: ${req.status}`);

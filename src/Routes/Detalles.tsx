@@ -42,7 +42,12 @@ function Detalles() {
   const obtenerClaseSeleccionada = async () => {
     setCargando(true);
     try {
-      const req = await fetch(`${SERVER}${ROUTE1}/${id}`);
+      const token = localStorage.getItem("token");
+      const req = await fetch(`${SERVER}${ROUTE1}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const res = await req.json();
 
       if (res.error) {
@@ -61,7 +66,12 @@ function Detalles() {
   const obtenerAlumnos = async () => {
     setCargando(true);
     try {
-      const req = await fetch(SERVER + ROUTE2);
+      const token = localStorage.getItem("token");
+      const req = await fetch(SERVER + ROUTE2, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const res = await req.json();
 
       const alumnosFiltrados = res.alumnos.filter((a: TypeAlumnos) => {
@@ -75,14 +85,7 @@ function Detalles() {
           materia
         );
       });
-      // const alumnosFiltrados = res.alumnos.filter(
-      //   (a: TypeAlumnos) =>
-      //     a.grado === claseSeleccionada.grado &&
-      //     a.grupo === claseSeleccionada.grupo,
-
-      // );
       setAlumnos(alumnosFiltrados);
-      // console.log(alumnosFiltrados);
     } catch (error) {
       console.log(error);
     } finally {

@@ -32,13 +32,29 @@ function ClasesDelDia() {
 
   const obtenerClasesDelDia = async () => {
     setCargando(true);
+
     try {
-      const req = await fetch(SERVER + ROUTE);
+      const token = localStorage.getItem("token");
+
+      const req = await fetch(SERVER + ROUTE, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const res = await req.json();
+
+      console.log(res);
+
+      if (res.error) {
+        console.log(res.mensaje);
+        return;
+      }
 
       const clases = res.clases.filter((c: TypeClaseNueva) => {
         return c.horarios.some((h) => h.dia === semana[diaSemana]);
       });
+
       setClasesDia(clases);
       console.log(clases);
     } catch (error) {

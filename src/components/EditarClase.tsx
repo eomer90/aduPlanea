@@ -113,10 +113,12 @@ function EditarClase({
     const id = claseActualizada._id;
 
     try {
+      const token = localStorage.getItem("token");
       const req = await fetch(`${SERVER}${ROUTE}/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -142,9 +144,13 @@ function EditarClase({
     setCargando(true);
 
     try {
+      const token = localStorage.getItem("token");
       const id = claseActualizada._id;
       const req = await fetch(`${SERVER}${ROUTE}/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       const res = await req.json();
       if (res.error) {

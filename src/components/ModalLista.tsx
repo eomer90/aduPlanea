@@ -150,10 +150,12 @@ function ModalLista({
     };
 
     try {
+      const token = localStorage.getItem("token");
       const req = await fetch(SERVER + ROUTE2, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(datos),
       });

@@ -56,10 +56,12 @@ function FormAlumnos({
 
     setCargando(true);
     try {
+      const token = localStorage.getItem("token");
       const req = await fetch(SERVER + ROUTE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(datos),
       });

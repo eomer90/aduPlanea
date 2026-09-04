@@ -27,7 +27,12 @@ function DetalleAlumno({
   const obtenerAlumno = async () => {
     setCargando(true);
     try {
-      const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`);
+      const token = localStorage.getItem("token");
+      const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const res = await req.json();
 
       if (res.error) {
@@ -89,10 +94,12 @@ function DetalleAlumno({
   const guardarCambios = async () => {
     setCargando(true);
     try {
+      const token = localStorage.getItem("token");
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(alumnoEncontrado),
       });
@@ -122,8 +129,12 @@ function DetalleAlumno({
     if (!confirmar) return;
 
     try {
+      const token = localStorage.getItem("token");
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const res = await req.json();
