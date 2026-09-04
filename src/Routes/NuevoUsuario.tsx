@@ -6,15 +6,15 @@ import ModalCargando from "../components/ModalCargando";
 
 const SERVER = import.meta.env.VITE_API_URL;
 
-export type TypeEscuela = {
-  nombreEscuela: string;
-  nivelEducativo: string;
-};
+// export type TypeEscuela = {
+//   nombreEscuela: string;
+//   nivelEducativo: string;
+// };
 
-const escuelaInicial: TypeEscuela = {
-  nombreEscuela: "",
-  nivelEducativo: "",
-};
+// const escuelaInicial: TypeEscuela = {
+//   nombreEscuela: "",
+//   nivelEducativo: "",
+// };
 
 function NuevoUsuario() {
   const [formUsuario, setFormUsuario] =
