@@ -8,13 +8,19 @@ const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";
 const ROUTE = "/alumnos";
 
+type TypeClase = TypeClaseNueva & {
+  escuelaId: string;
+  usuarioId: string;
+  _id: string;
+};
+
 interface FormProp {
   setMostrarFormALumnos: React.Dispatch<React.SetStateAction<Boolean>>;
   formAlumno: TypeNuevoAlumno;
   setFormAlumno: React.Dispatch<React.SetStateAction<TypeNuevoAlumno>>;
   setMostrarBotonAlumnos: React.Dispatch<React.SetStateAction<Boolean>>;
   obtenerAlumnos: () => Promise<void>;
-  claseSeleccionada: TypeClaseNueva;
+  claseSeleccionada: TypeClase;
 }
 function FormAlumnos({
   formAlumno,
@@ -46,10 +52,10 @@ function FormAlumnos({
       grupo: formAlumno.grupo,
       materias: [
         {
+          claseId: claseSeleccionada._id,
           nombre: claseSeleccionada.materia,
           asistencias: [],
           evaluaciones: [],
-          calificaciones: "",
         },
       ],
     };

@@ -7,7 +7,9 @@ import EditarClase from "../components/EditarClase";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
+import type { TypeEvaluacion } from "../Types/TypeEvaluacion";
 import ModalCargando from "../components/ModalCargando";
+import Evaluaciones from "../components/Evaluaciones";
 
 const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";
@@ -19,23 +21,40 @@ type TypeAlumnos = TypeNuevoAlumno & {
 };
 
 type TypeClase = TypeClaseNueva & {
+  escuelaId: string;
+  usuarioId: string;
   _id: string;
 };
 
-const defaultClaseSeleccionada = {
+const defaultClaseSeleccionada: TypeClase = {
   ...defaultClaseNueva,
+  escuelaId: "",
+  usuarioId: "",
   _id: "",
+};
+
+type TypeEvaluacionesSeleccionadas = TypeEvaluacion & {
+  claseId: string;
+  escuelaId: string;
+  usuarioId: string;
+  _id: string;
 };
 
 function Detalles() {
   const [claseSeleccionada, setClaseSeleccionada] = useState<TypeClase>(
     defaultClaseSeleccionada,
   );
+  const [alumnos, setAlumnos] = useState<TypeAlumnos[]>([]);
+  const [evaluaciones, setEvaluaciones] = useState<
+    TypeEvaluacionesSeleccionadas[]
+  >([]);
+
   const [mostrarDetalles, setMostrarDetalles] = useState<boolean>(true);
   const [mostrarAlumnos, setMostrarAlumnos] = useState<Boolean>(false);
-  const [alumnos, setAlumnos] = useState<TypeAlumnos[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
   const [mostrarEditarClase, setMostrarEditarClase] = useState<boolean>(false);
+  const [mostrarEvaluaciones, setMostrarEvaluaciones] =
+    useState<boolean>(false);
 
   const { id } = useParams();
 
@@ -93,9 +112,46 @@ function Detalles() {
     }
   };
 
+  const obtenerEvaluaciones = async () => {
+    setCargando(true);
+    try {
+      const token = localStorage.getItem("token");
+      const req = await fetch(`${SERVER}/evaluaciones`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await req.json();
+
+      console.log("Evaluaciones:", res.evaluacionesEncontradas);
+      console.log("Clase seleccionada:", claseSeleccionada._id);
+      console.log(
+        "claseId evaluación:",
+        res.evaluacionesEncontradas[0]?.claseId,
+      );
+
+      const evaluacionesFiltradas = res.evaluacionesEncontradas.filter(
+        (e: TypeEvaluacionesSeleccionadas) =>
+          String(e.claseId) === String(claseSeleccionada._id),
+      );
+      setEvaluaciones(evaluacionesFiltradas);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
   useEffect(() => {
     obtenerClaseSeleccionada();
   }, []);
+
+  useEffect(() => {
+    if (claseSeleccionada._id) {
+      obtenerEvaluaciones();
+    }
+  }, [claseSeleccionada]);
 
   useEffect(() => {
     if (claseSeleccionada._id) {
@@ -131,6 +187,7 @@ function Detalles() {
                 onClick={() => {
                   setMostrarDetalles(true);
                   setMostrarAlumnos(false);
+                  setMostrarEvaluaciones(false);
                   setMostrarEditarClase(false);
                 }}
                 className={`rounded-md px-4 py-2 text-sm transition ${
@@ -147,6 +204,7 @@ function Detalles() {
                 onClick={() => {
                   setMostrarDetalles(false);
                   setMostrarAlumnos(true);
+                  setMostrarEvaluaciones(false);
                   setMostrarEditarClase(false);
                 }}
                 className={`rounded-md px-4 py-2 text-sm transition ${
@@ -168,6 +226,24 @@ function Detalles() {
                 onClick={() => {
                   setMostrarDetalles(false);
                   setMostrarAlumnos(false);
+                  setMostrarEvaluaciones(true);
+                  setMostrarEditarClase(false);
+                }}
+              >
+                Evaluaciones
+              </button>
+
+              <button
+                type="button"
+                className={`rounded-md px-4 py-2 text-sm transition ${
+                  mostrarEditarClase
+                    ? "bg-white font-semibold text-indigo-600 shadow-sm"
+                    : "font-medium text-slate-500 hover:bg-white hover:text-slate-700"
+                }`}
+                onClick={() => {
+                  setMostrarDetalles(false);
+                  setMostrarAlumnos(false);
+                  setMostrarEvaluaciones(false);
                   setMostrarEditarClase(true);
                 }}
               >
@@ -262,6 +338,14 @@ function Detalles() {
               setMostrarEditarClase={setMostrarEditarClase}
               setMostrarDetalles={setMostrarDetalles}
               obtenerClaseSeleccionada={obtenerClaseSeleccionada}
+            />
+          )}
+
+          {mostrarEvaluaciones && (
+            <Evaluaciones
+              alumnos={alumnos}
+              claseSeleccionada={claseSeleccionada}
+              evaluaciones={evaluaciones}
             />
           )}
         </div>

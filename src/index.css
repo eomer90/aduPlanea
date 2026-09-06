@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .modal-evaluacion,
+  .modal-evaluacion * {
+    visibility: visible;
+  }
+
+  .modal-evaluacion {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .modal-evaluacion input,
+  .modal-evaluacion textarea {
+    border: none;
+    resize: none;
+  }
+}
+
 /* :root {
   --text: #6b6375;
   --text-h: #08060d;

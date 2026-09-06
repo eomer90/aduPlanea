@@ -279,7 +279,7 @@ function DetalleAlumno({
                 <input
                   type="text"
                   name="calificacion"
-                  value={materia?.calificaciones || "Sin calificación"}
+                  // value={materia?.calificaciones || "Sin calificación"}
                   onChange={handleChange}
                   className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
                 />
