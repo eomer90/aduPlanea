@@ -1,12 +1,20 @@
 import { useState } from "react";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
-import type { TypeEstado } from "../Types/TypeNuevoAlumno";
-import type { TypeObservaciones } from "../Types/TypeNuevoAlumno";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import ModalCargando from "./ModalCargando";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
+};
+
+type TypeEstadoAlumno = {
+  id: string;
+  estado: "presente" | "falta" | "retardo" | "justificado";
+};
+
+type TypeObservacionAlumno = {
+  id: string;
+  observaciones: string;
 };
 
 const SERVER = import.meta.env.VITE_API_URL;
@@ -27,8 +35,10 @@ function ModalLista({
   claseSeleccionada,
 }: AlumnosProp) {
   const [fecha, setFecha] = useState<string>("");
-  const [estados, setEstados] = useState<TypeEstado[]>([]);
-  const [observaciones, setObservaciones] = useState<TypeObservaciones[]>([]);
+  const [estados, setEstados] = useState<TypeEstadoAlumno[]>([]);
+  const [observaciones, setObservaciones] = useState<TypeObservacionAlumno[]>(
+    [],
+  );
   const [cargando, setCargando] = useState(false);
 
   const ponerFecha = (e: React.ChangeEvent<HTMLInputElement>) => {
