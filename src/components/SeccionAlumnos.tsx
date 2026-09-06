@@ -7,6 +7,12 @@ import ModalLista from "../components/ModalLista";
 import DetalleAlumno from "../components/DetalleAlumno";
 import ModalImportar from "./ModalImportar";
 
+export type TypeClase = TypeClaseNueva & {
+  _id: string;
+  escuelaId: string;
+  usuarioId: string;
+};
+
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
 };
@@ -14,7 +20,7 @@ type TypeAlumnos = TypeNuevoAlumno & {
 interface AlumnosProp {
   alumnos: TypeAlumnos[];
   obtenerAlumnos: () => Promise<void>;
-  claseSeleccionada: TypeClaseNueva;
+  claseSeleccionada: TypeClase;
 }
 
 function SeccionAlumnos({
