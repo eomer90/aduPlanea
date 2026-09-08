@@ -35,9 +35,15 @@ interface Prop {
   alumnos: TypeAlumnos[];
   claseSeleccionada: TypeClase;
   evaluaciones: TypeEvaluacionesSeleccionadas[];
+  obtenerEvaluaciones: () => Promise<void>;
 }
 
-function Evaluaciones({ alumnos, claseSeleccionada, evaluaciones }: Prop) {
+function Evaluaciones({
+  alumnos,
+  claseSeleccionada,
+  evaluaciones,
+  obtenerEvaluaciones,
+}: Prop) {
   const [motrarModalEvaluacion, setMotrarModalEvaluacion] =
     useState<boolean>(false);
   const [verEvaluacion, setVerEvaluacion] = useState<boolean>(false);
@@ -94,6 +100,7 @@ function Evaluaciones({ alumnos, claseSeleccionada, evaluaciones }: Prop) {
           alumnos={alumnos}
           claseSeleccionada={claseSeleccionada}
           setMotrarModalEvaluacion={setMotrarModalEvaluacion}
+          obtenerEvaluaciones={obtenerEvaluaciones}
         />
       )}
       {verEvaluacion && (
@@ -101,6 +108,8 @@ function Evaluaciones({ alumnos, claseSeleccionada, evaluaciones }: Prop) {
           setVerEvaluacion={setVerEvaluacion}
           evaluacionSeleccionada={evaluacionSeleccionada}
           alumnos={alumnos}
+          obtenerEvaluaciones={obtenerEvaluaciones}
+          claseSeleccionada={claseSeleccionada}
         />
       )}
     </>

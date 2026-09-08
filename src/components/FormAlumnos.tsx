@@ -58,6 +58,7 @@ function FormAlumnos({
           evaluaciones: [],
         },
       ],
+      actividades: [],
     };
 
     setCargando(true);

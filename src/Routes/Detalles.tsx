@@ -18,6 +18,8 @@ const ROUTE2 = "/alumnos";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
+  escuelaId: string;
+  usuarioId: string;
 };
 
 type TypeClase = TypeClaseNueva & {
@@ -346,6 +348,7 @@ function Detalles() {
               alumnos={alumnos}
               claseSeleccionada={claseSeleccionada}
               evaluaciones={evaluaciones}
+              obtenerEvaluaciones={obtenerEvaluaciones}
             />
           )}
         </div>

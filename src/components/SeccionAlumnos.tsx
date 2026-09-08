@@ -6,6 +6,7 @@ import FormAlumnos from "./FormAlumnos";
 import ModalLista from "../components/ModalLista";
 import DetalleAlumno from "../components/DetalleAlumno";
 import ModalImportar from "./ModalImportar";
+import ModalRevisarActividad from "./ModalRevisarActividad";
 
 export type TypeClase = TypeClaseNueva & {
   _id: string;
@@ -32,6 +33,8 @@ function SeccionAlumnos({
   const [mostrarFormAlumnos, setMostrarFormALumnos] = useState<Boolean>(false);
   const [mostrarBotonAlumnos, setMostrarBotonAlumnos] = useState<Boolean>(true);
   const [modalPasarLista, setModalPasarLista] = useState<Boolean>(false);
+  const [mostrarModalRevisarActividad, setMostrarModalRevisarActividad] =
+    useState<boolean>(false);
   const [modalDetalleAlumno, setModalDetalleAlumno] = useState<boolean>(false);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<string>("");
   const [modalImportar, setModalImportar] = useState<boolean>(false);
@@ -180,9 +183,10 @@ function SeccionAlumnos({
 
             <button
               type="button"
+              onClick={() => setMostrarModalRevisarActividad(true)}
               className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
             >
-              Evaluación
+              Revisar una actividad
             </button>
           </div>
         </div>
@@ -339,6 +343,14 @@ function SeccionAlumnos({
           setModalPasarLista={setModalPasarLista}
           obtenerAlumnos={obtenerAlumnos}
           claseSeleccionada={claseSeleccionada}
+        />
+      )}
+
+      {mostrarModalRevisarActividad && (
+        <ModalRevisarActividad
+          alumnos={alumnos}
+          setMostrarModalRevisarActividad={setMostrarModalRevisarActividad}
+          obtenerAlumnos={obtenerAlumnos}
         />
       )}
 

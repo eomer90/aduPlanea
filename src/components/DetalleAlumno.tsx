@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
+import type { TypeActividad } from "../Types/TypeNuevoAlumno";
 import ModalCargando from "./ModalCargando";
 
 interface Prop {
@@ -88,6 +89,24 @@ function DetalleAlumno({
     setAlumnoEncontrado({
       ...alumnoEncontrado!,
       materias: nuevasMaterias,
+    });
+  };
+
+  const cambiarActividad = (
+    index: number,
+    campo: keyof TypeActividad,
+    valor: string,
+  ) => {
+    const nuevasActividades = [...(alumnoEncontrado!.actividades || [])];
+
+    nuevasActividades[index] = {
+      ...nuevasActividades[index],
+      [campo]: valor,
+    };
+
+    setAlumnoEncontrado({
+      ...alumnoEncontrado!,
+      actividades: nuevasActividades,
     });
   };
 
@@ -369,6 +388,100 @@ function DetalleAlumno({
                 </p>
               </div>
             </div>
+          </section>
+
+          <section>
+            <h3 className="mb-3 text-sm font-semibold text-slate-800">
+              Actividades
+            </h3>
+
+            {alumnoEncontrado.actividades?.length > 0 ? (
+              <div className="max-h-60 overflow-y-auto rounded-lg border border-slate-200">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-slate-50">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs text-slate-500">
+                        Actividad
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs text-slate-500">
+                        Fecha
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs text-slate-500">
+                        Estado
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs text-slate-500">
+                        Observaciones
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {alumnoEncontrado.actividades.map((actividad, index) => (
+                      <tr key={index} className="border-t border-slate-200">
+                        <td className="px-3 py-2">
+                          <input
+                            type="text"
+                            value={actividad.titulo}
+                            onChange={(e) =>
+                              cambiarActividad(index, "titulo", e.target.value)
+                            }
+                            className="w-full border-0 bg-transparent p-0 text-sm outline-none"
+                          />
+                        </td>
+
+                        <td className="px-3 py-2">
+                          <input
+                            type="date"
+                            value={actividad.fecha}
+                            onChange={(e) =>
+                              cambiarActividad(index, "fecha", e.target.value)
+                            }
+                            className="border-0 bg-transparent p-0 text-sm outline-none"
+                          />
+                        </td>
+
+                        <td className="px-3 py-2">
+                          <select
+                            value={actividad.estado}
+                            onChange={(e) =>
+                              cambiarActividad(index, "estado", e.target.value)
+                            }
+                            className="border-0 bg-transparent p-0 text-sm outline-none"
+                          >
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Entregado">Entregado</option>
+                            <option value="No entregado">No entregado</option>
+                            <option value="Entregado tarde">
+                              Entregado tarde
+                            </option>
+                          </select>
+                        </td>
+
+                        <td className="px-3 py-2">
+                          <input
+                            type="text"
+                            value={actividad.observaciones}
+                            onChange={(e) =>
+                              cambiarActividad(
+                                index,
+                                "observaciones",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Sin observaciones"
+                            className="w-full border-0 bg-transparent p-0 text-sm outline-none"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="rounded-lg bg-slate-50 p-3 text-center text-sm text-slate-400">
+                No hay actividades registradas.
+              </p>
+            )}
           </section>
         </div>
 

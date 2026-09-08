@@ -9,6 +9,14 @@ export type TypeMaterias = {
   asistencias: TypeAsistencia[];
 };
 
+export type TypeActividad = {
+  alumnoId: string;
+  titulo: string;
+  fecha: string;
+  estado: string;
+  observaciones: string;
+};
+
 export interface TypeNuevoAlumno {
   nombre: string;
   apellidoPaterno: string;
@@ -16,6 +24,7 @@ export interface TypeNuevoAlumno {
   grado: string;
   grupo: string;
   materias: TypeMaterias[];
+  actividades: TypeActividad[];
 }
 
 const estadoInicial: TypeNuevoAlumno = {
@@ -25,6 +34,7 @@ const estadoInicial: TypeNuevoAlumno = {
   grado: "",
   grupo: "",
   materias: [],
+  actividades: [],
 };
 
 export default estadoInicial;

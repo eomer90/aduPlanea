@@ -21,6 +21,7 @@ interface Prop {
   alumnos: TypeAlumnos[];
   claseSeleccionada: TypeClase;
   setMotrarModalEvaluacion: React.Dispatch<React.SetStateAction<boolean>>;
+  obtenerEvaluaciones: () => Promise<void>;
 }
 
 export type TypeEscuela = {
@@ -33,6 +34,7 @@ function FormEvaluacion({
   alumnos,
   claseSeleccionada,
   setMotrarModalEvaluacion,
+  obtenerEvaluaciones,
 }: Prop) {
   const [formEvaluacion, setFormEvaluacion] =
     useState<TypeEvaluacion>(evaluacionInicial);
@@ -231,11 +233,6 @@ function FormEvaluacion({
         materia: claseSeleccionada.materia,
         claseId: claseSeleccionada._id,
       };
-
-      console.log("CLASE:", claseSeleccionada);
-      console.log("CLASE ID:", claseSeleccionada._id);
-      console.log("EVALUACION:", evaluacion);
-
       const req = await fetch(`${SERVER}/evaluaciones`, {
         method: "POST",
         headers: {
@@ -256,6 +253,7 @@ function FormEvaluacion({
 
       setFormEvaluacion(evaluacionInicial);
       setMotrarModalEvaluacion(false);
+      obtenerEvaluaciones();
     } catch (error) {
       console.log(error);
     } finally {
@@ -354,6 +352,9 @@ function FormEvaluacion({
 
           {formEvaluacion.instrumento !== "ContenidosPDA" && (
             <div className="flex gap-6 border-t border-slate-200 pt-5">
+              <p className="text-sm font-medium text-slate-700">
+                Seleccciona si la evaluación es
+              </p>
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
@@ -368,7 +369,7 @@ function FormEvaluacion({
                 />
 
                 <span className="text-sm font-medium text-slate-700">
-                  Evaluación cuantitativa
+                  Cuantitativa
                 </span>
               </label>
 
@@ -386,7 +387,7 @@ function FormEvaluacion({
                 />
 
                 <span className="text-sm font-medium text-slate-700">
-                  Evaluación cualitativa
+                  Cualitativa
                 </span>
               </label>
             </div>
@@ -443,6 +444,8 @@ function FormEvaluacion({
 
                           {f.contenidos.map((c) =>
                             c.pdas.map((p) => {
+                              const pdaId = `${c.id}-${p.id}`;
+
                               const resultado = formEvaluacion.resultados.find(
                                 (resultado) => resultado.alumnoId === a._id,
                               );
@@ -450,11 +453,10 @@ function FormEvaluacion({
                               const manifestacion =
                                 resultado?.manifestaciones.find(
                                   (manifestacion) =>
-                                    manifestacion.pdaId === p.id,
+                                    manifestacion.pdaId === pdaId,
                                 );
-
                               return (
-                                <tr key={`${a._id}-${p.id}`}>
+                                <tr key={`${a._id}-${pdaId}`}>
                                   <td className="w-1/2 border-b border-slate-100 px-4 py-4 align-top text-sm text-slate-700">
                                     <p>{p.descripcion}</p>
                                   </td>
@@ -465,7 +467,7 @@ function FormEvaluacion({
                                       onChange={(e) =>
                                         cambiarManifestacion(
                                           a._id,
-                                          p.id,
+                                          pdaId,
                                           e.target.value,
                                         )
                                       }

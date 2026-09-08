@@ -16,8 +16,13 @@
     width: 100%;
     max-width: none;
     max-height: none;
-    overflow: visible;
+    overflow: visible !important;
+    border-radius: 0;
     box-shadow: none;
+  }
+
+  .modal-evaluacion > div {
+    overflow: visible !important;
   }
 
   .no-print {
