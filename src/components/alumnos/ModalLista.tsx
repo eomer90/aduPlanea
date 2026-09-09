@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
-import ModalCargando from "./ModalCargando";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+import ModalCargando from "../ModalCargando";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
@@ -22,14 +22,14 @@ const SERVER = import.meta.env.VITE_API_URL;
 const ROUTE2 = "/alumnos";
 
 interface AlumnosProp {
-  alumnos: TypeAlumnos[];
-  setModalPasarLista: React.Dispatch<React.SetStateAction<Boolean>>;
+  alumnosOrdenados: TypeAlumnos[];
+  setModalPasarLista: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
   claseSeleccionada: TypeClaseNueva;
 }
 
 function ModalLista({
-  alumnos,
+  alumnosOrdenados,
   setModalPasarLista,
   obtenerAlumnos,
   claseSeleccionada,
@@ -46,7 +46,7 @@ function ModalLista({
 
     setFecha(nuevaFecha);
 
-    const buscarAlumnos = alumnos.filter((a) => {
+    const buscarAlumnos = alumnosOrdenados.filter((a) => {
       const materia = a.materias.find(
         (materia) => materia.nombre === claseSeleccionada.materia,
       );
@@ -142,7 +142,7 @@ function ModalLista({
 
     setCargando(true);
 
-    const asistencia = alumnos.map((alumno) => {
+    const asistencia = alumnosOrdenados.map((alumno) => {
       const estado = estados.find((e) => e.id === alumno._id);
       const observacion = observaciones.find((o) => o.id === alumno._id);
 
@@ -246,7 +246,7 @@ function ModalLista({
             </div>
 
             <div className="overflow-hidden rounded-xl border border-slate-200">
-              {alumnos.map((a, index) => (
+              {alumnosOrdenados.map((a, index) => (
                 <div
                   key={a._id}
                   className="border-b border-slate-100 px-3 py-2 last:border-b-0 hover:bg-slate-50"
@@ -342,7 +342,7 @@ function ModalLista({
 
           <div className="flex items-center justify-between border-t border-slate-200 bg-white px-6 py-4">
             <span className="text-sm text-slate-400">
-              {alumnos.length} alumnos
+              {alumnosOrdenados.length} alumnos
             </span>
 
             <div className="flex gap-2">

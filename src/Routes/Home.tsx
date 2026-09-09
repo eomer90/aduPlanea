@@ -1,7 +1,7 @@
-import ClasesDelDia from "../components/ClasesDelDia";
+import ClasesDelDia from "../components/inicio/ClasesDelDia";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
-import Recordatorios from "../components/Recordatorios";
+import Recordatorios from "../components/inicio/InicioRecordatorios";
 
 function Home() {
   return (

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
-import defaultClaseNueva from "../Types/TypeClaseNueva";
-import ModalCargando from "./ModalCargando";
+import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+import defaultClaseNueva from "../../Types/TypeClaseNueva";
+import ModalCargando from "../ModalCargando";
 
 const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
-import Tarjetas from "../components/Tarjetas";
+import Tarjetas from "../components/clases/Tarjetas";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
 import ModalCargando from "../components/ModalCargando";

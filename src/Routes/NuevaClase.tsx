@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
-import FormClases from "../components/FormClases";
+import FormClases from "../components/clases/FormClases";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
 import { useNavigate } from "react-router-dom";

@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
-import SeccionAlumnos from "../components/SeccionAlumnos";
-import EditarClase from "../components/EditarClase";
+import SeccionAlumnos from "../components/alumnos/SeccionAlumnos";
+import EditarClase from "../components/clases/EditarClase";
 import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import defaultClaseNueva from "../Types/TypeClaseNueva";
 import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
 import type { TypeEvaluacion } from "../Types/TypeEvaluacion";
 import ModalCargando from "../components/ModalCargando";
-import Evaluaciones from "../components/Evaluaciones";
+import Evaluaciones from "../components/evaluaciones/Evaluaciones";
 
 const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";
@@ -221,7 +221,7 @@ function Detalles() {
               <button
                 type="button"
                 className={`rounded-md px-4 py-2 text-sm transition ${
-                  mostrarEditarClase
+                  mostrarEvaluaciones
                     ? "bg-white font-semibold text-indigo-600 shadow-sm"
                     : "font-medium text-slate-500 hover:bg-white hover:text-slate-700"
                 }`}

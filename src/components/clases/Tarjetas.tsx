@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
+import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
 
 type TypeClase = TypeClaseNueva & {
   _id: string;

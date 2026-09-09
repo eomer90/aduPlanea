@@ -1,8 +1,8 @@
-import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
-import nuevoAlumno from "../Types/TypeNuevoAlumno";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+import nuevoAlumno from "../../Types/TypeNuevoAlumno";
 import { useState } from "react";
-import ModalCargando from "./ModalCargando";
+import ModalCargando from "../ModalCargando";
 
 const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";
@@ -15,10 +15,10 @@ type TypeClase = TypeClaseNueva & {
 };
 
 interface FormProp {
-  setMostrarFormALumnos: React.Dispatch<React.SetStateAction<Boolean>>;
+  setMostrarFormALumnos: React.Dispatch<React.SetStateAction<boolean>>;
   formAlumno: TypeNuevoAlumno;
   setFormAlumno: React.Dispatch<React.SetStateAction<TypeNuevoAlumno>>;
-  setMostrarBotonAlumnos: React.Dispatch<React.SetStateAction<Boolean>>;
+  setMostrarBotonAlumnos: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
   claseSeleccionada: TypeClase;
 }

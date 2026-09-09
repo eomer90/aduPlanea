@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
-import ModalCargando from "./ModalCargando";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import ModalCargando from "../ModalCargando";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
@@ -20,7 +20,7 @@ type TypeActividadAlumno = {
 };
 
 interface AlumnosProp {
-  alumnos: TypeAlumnos[];
+  alumnosOrdenados: TypeAlumnos[];
   setMostrarModalRevisarActividad: React.Dispatch<
     React.SetStateAction<boolean>
   >;
@@ -31,7 +31,7 @@ const SERVER = import.meta.env.VITE_API_URL;
 const ROUTE2 = "/alumnos";
 
 function ModalRevisarActividad({
-  alumnos,
+  alumnosOrdenados,
   setMostrarModalRevisarActividad,
   obtenerAlumnos,
 }: AlumnosProp) {
@@ -43,7 +43,7 @@ function ModalRevisarActividad({
   const [actividadesAlumnos, setActividadesAlumnos] = useState<
     TypeActividadAlumno[]
   >(
-    alumnos.map((alumno) => ({
+    alumnosOrdenados.map((alumno) => ({
       alumnoId: alumno._id,
       estado: "Pendiente",
       observaciones: "",
@@ -97,7 +97,7 @@ function ModalRevisarActividad({
     setCargando(true);
     try {
       const token = localStorage.getItem("token");
-      for (const alumno of alumnos) {
+      for (const alumno of alumnosOrdenados) {
         const actividadAlumno = actividadesAlumnos.find(
           (actividad) => actividad.alumnoId === alumno._id,
         );
@@ -227,7 +227,7 @@ function ModalRevisarActividad({
                   </thead>
 
                   <tbody>
-                    {alumnos.map((alumno) => {
+                    {alumnosOrdenados.map((alumno) => {
                       const actividadAlumno = actividadesAlumnos.find(
                         (actividad) => actividad.alumnoId === alumno._id,
                       );

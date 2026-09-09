@@ -7,6 +7,7 @@ import Login from "./Routes/Login";
 import Registro from "./Routes/Registro";
 import NuevoUsuario from "./Routes/NuevoUsuario";
 import RutaProtegida from "./components/RutaProtegida";
+import Recordatorios from "./Routes/Recordatorios";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/clases" element={<Clases />} />
           <Route path="/nueva-clase" element={<NuevaClase />} />
           <Route path="/clases/:id" element={<Detalles />} />
+          <Route path="/recordatorios" element={<Recordatorios />} />
         </Route>
       </Routes>
     </BrowserRouter>

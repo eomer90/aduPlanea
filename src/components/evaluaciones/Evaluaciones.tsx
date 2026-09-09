@@ -1,10 +1,10 @@
 import { useState } from "react";
 import ModalEvaluacion from "./ModalEvaluacion";
 import ModalEditarEvaluacion from "./ModalEditarEvaluacion";
-import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
-import type { TypeEvaluacion } from "../Types/TypeEvaluacion";
-import evaluacionInicial from "../Types/TypeEvaluacion";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+import type { TypeEvaluacion } from "../../Types/TypeEvaluacion";
+import evaluacionInicial from "../../Types/TypeEvaluacion";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;

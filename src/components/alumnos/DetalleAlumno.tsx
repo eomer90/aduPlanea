@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { TypeNuevoAlumno } from "../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
-import type { TypeActividad } from "../Types/TypeNuevoAlumno";
-import ModalCargando from "./ModalCargando";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+import type { TypeActividad } from "../../Types/TypeNuevoAlumno";
+import ModalCargando from "../ModalCargando";
 
 interface Prop {
   alumnoSeleccionado: string;
@@ -111,9 +111,15 @@ function DetalleAlumno({
   };
 
   const guardarCambios = async () => {
+    if (!alumnoEncontrado) return;
+
+    console.log("ALUMNO ANTES DE GUARDAR:", alumnoEncontrado);
     setCargando(true);
     try {
       const token = localStorage.getItem("token");
+      console.log("SERVER:", SERVER);
+      console.log("URL PATCH:", `${SERVER}${ROUTE2}/${alumnoSeleccionado}`);
+      console.log("ALUMNO ANTES DE GUARDAR:", alumnoEncontrado);
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         method: "PATCH",
         headers: {

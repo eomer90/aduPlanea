@@ -10,10 +10,9 @@ export type TypeMaterias = {
 };
 
 export type TypeActividad = {
-  alumnoId: string;
   titulo: string;
   fecha: string;
-  estado: string;
+  estado: "Pendiente" | "Entregado" | "No entregado" | "Entregado tarde";
   observaciones: string;
 };
 
