@@ -53,12 +53,19 @@ function SeccionAlumnos({
     "semana",
   );
 
+  const [busquedaAlumno, setBusquedaAlumno] = useState<string>("");
+
   /*
    * Ordenar alumnos
    */
-  const alumnosOrdenados = [...alumnos].sort((a, b) =>
-    a.apellidoPaterno.localeCompare(b.apellidoPaterno),
-  );
+  const alumnosOrdenados = [...alumnos]
+    .filter((alumno) => {
+      const nombreCompleto =
+        `${alumno.nombre} ${alumno.apellidoPaterno} ${alumno.apellidoMaterno}`.toLowerCase();
+
+      return nombreCompleto.includes(busquedaAlumno.toLowerCase());
+    })
+    .sort((a, b) => a.apellidoPaterno.localeCompare(b.apellidoPaterno));
 
   /*
    * Obtener rango del filtro de asistencia
@@ -197,85 +204,89 @@ function SeccionAlumnos({
     setAlumnoSeleccionado(id);
   };
 
+  const alumnosAtencion = alumnos
+    .map((alumno) => {
+      const asistencias = asistenciasDelPeriodo(alumno);
+
+      const faltas = asistencias.filter(
+        (asistencia) => asistencia.estado === "falta",
+      ).length;
+
+      const trabajosNoEntregados =
+        alumno.actividades?.filter(
+          (actividad) => actividad.estado === "No entregado",
+        ).length ?? 0;
+
+      return {
+        ...alumno,
+        faltas,
+        trabajosNoEntregados,
+      };
+    })
+    .filter((alumno) => alumno.faltas >= 3 || alumno.trabajosNoEntregados >= 2)
+    .sort((a, b) => {
+      const totalA = a.faltas + a.trabajosNoEntregados;
+      const totalB = b.faltas + b.trabajosNoEntregados;
+
+      return totalB - totalA;
+    });
+
   return (
     <section className="mt-6 space-y-6">
       {/* =========================
           RESUMEN DE ASISTENCIA
       ========================== */}
-      {/* =========================
-    RESUMEN DE ASISTENCIA
-========================== */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-5 flex items-end justify-between">
+        <div className="mb-6 flex items-start justify-between">
           <div>
             <h2 className="font-semibold text-slate-900">
               Resumen de asistencia
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Asistencia del grupo durante el periodo seleccionado
+              Seguimiento del grupo durante el periodo seleccionado
             </p>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-500">
-            Filtro por:
-            <select
-              value={filtroAsistencia}
-              onChange={(e) =>
-                setFiltroAsistencia(e.target.value as "semana" | "mes")
-              }
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500"
-            >
-              <option value="semana">Semana</option>
-
-              <option value="mes">Mes</option>
-            </select>
-          </label>
+          <select
+            value={filtroAsistencia}
+            onChange={(e) =>
+              setFiltroAsistencia(e.target.value as "semana" | "mes")
+            }
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          >
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+          </select>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* ASISTENCIAS */}
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-            <p className="text-sm font-medium text-emerald-700">Asistencias</p>
-
-            <p className="mt-2 text-3xl font-bold text-emerald-700">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Presentes</p>
+            <p className="mt-1 text-2xl font-bold text-emerald-600">
               {totalAsistencias}
             </p>
-
-            <p className="mt-1 text-xs text-emerald-600">Registros presentes</p>
           </div>
 
-          {/* FALTAS */}
-          <div className="rounded-xl border border-red-100 bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-700">Faltas</p>
-
-            <p className="mt-2 text-3xl font-bold text-red-700">
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Faltas</p>
+            <p className="mt-1 text-2xl font-bold text-red-600">
               {totalFaltas}
             </p>
-
-            <p className="mt-1 text-xs text-red-600">Registros de falta</p>
           </div>
 
-          {/* RETARDOS */}
-          <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
-            <p className="text-sm font-medium text-amber-700">Retardos</p>
-
-            <p className="mt-2 text-3xl font-bold text-amber-700">
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Retardos</p>
+            <p className="mt-1 text-2xl font-bold text-amber-600">
               {totalRetardos}
             </p>
-
-            <p className="mt-1 text-xs text-amber-600">Llegadas tarde</p>
           </div>
 
-          {/* JUSTIFICADOS */}
-          <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-            <p className="text-sm font-medium text-indigo-700">Justificados</p>
-
-            <p className="mt-2 text-3xl font-bold text-indigo-700">
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Justificados</p>
+            <p className="mt-1 text-2xl font-bold text-indigo-600">
               {totalJustificados}
             </p>
-
-            <p className="mt-1 text-xs text-indigo-600">Faltas justificadas</p>
           </div>
         </div>
       </section>
@@ -283,79 +294,167 @@ function SeccionAlumnos({
       {/* =========================
           RESUMEN DE TRABAJOS
       ========================== */}
+      {/* RESUMEN DE TRABAJOS */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-5">
-          <h2 className="font-semibold text-slate-900">Resumen de trabajos</h2>
+        <div className="mb-6">
+          <h2 className="font-semibold text-slate-900">
+            Seguimiento de actividades
+          </h2>
 
           <p className="mt-1 text-sm text-slate-500">
-            Estado general de las actividades del grupo
+            Estado de las actividades asignadas al grupo
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* ENTREGADOS */}
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-            <p className="text-sm font-medium text-emerald-700">Entregados</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Entregados</p>
 
-            <p className="mt-2 text-3xl font-bold text-emerald-700">
+            <p className="mt-1 text-2xl font-bold text-emerald-600">
               {totalEntregados}
             </p>
+
+            <p className="mt-1 text-xs text-slate-400">Actividades recibidas</p>
           </div>
 
-          {/* PENDIENTES */}
-          <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
-            <p className="text-sm font-medium text-amber-700">Pendientes</p>
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Pendientes</p>
 
-            <p className="mt-2 text-3xl font-bold text-amber-700">
+            <p className="mt-1 text-2xl font-bold text-amber-600">
               {totalPendientes}
             </p>
+
+            <p className="mt-1 text-xs text-slate-400">Aún por entregar</p>
           </div>
 
-          {/* NO ENTREGADOS */}
-          <div className="rounded-xl border border-red-100 bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-700">No entregados</p>
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">No entregados</p>
 
-            <p className="mt-2 text-3xl font-bold text-red-700">
+            <p className="mt-1 text-2xl font-bold text-red-600">
               {totalNoEntregados}
             </p>
+
+            <p className="mt-1 text-xs text-slate-400">Requieren seguimiento</p>
           </div>
 
-          {/* ENTREGADOS TARDE */}
-          <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-            <p className="text-sm font-medium text-indigo-700">
-              Entregados tarde
-            </p>
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-sm text-slate-500">Entregados tarde</p>
 
-            <p className="mt-2 text-3xl font-bold text-indigo-700">
+            <p className="mt-1 text-2xl font-bold text-indigo-600">
               {totalEntregadosTarde}
             </p>
+
+            <p className="mt-1 text-xs text-slate-400">Fuera de plazo</p>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Atención requerida
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Alumnos que necesitan seguimiento en asistencia o actividades.
+          </p>
+        </div>
+
+        {alumnosAtencion.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
+            <p className="text-sm text-slate-500">
+              No hay alumnos que requieran atención.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {alumnosAtencion.map((alumno) => (
+              <button
+                key={alumno._id}
+                type="button"
+                onClick={() => verDetalles(alumno._id)}
+                className="flex w-full items-center justify-between rounded-xl border border-slate-100 px-4 py-3 text-left transition hover:border-indigo-200 hover:bg-slate-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-50 font-semibold text-red-600">
+                    !
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-slate-800">
+                      {alumno.nombre} {alumno.apellidoPaterno}{" "}
+                      {alumno.apellidoMaterno}
+                    </p>
+
+                    <div className="mt-1 flex gap-3 text-xs">
+                      {alumno.faltas >= 3 && (
+                        <span className="text-red-600">
+                          {alumno.faltas} faltas
+                        </span>
+                      )}
+
+                      {alumno.trabajosNoEntregados >= 2 && (
+                        <span className="text-amber-600">
+                          {alumno.trabajosNoEntregados} trabajos no entregados
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-lg text-slate-400">→</span>
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* =========================
           ALUMNOS
       ========================== */}
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      {/* ALUMNOS */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-slate-200 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 p-6">
           <div>
-            <h2 className="font-semibold text-slate-900">Alumnos</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="font-semibold text-slate-900">Alumnos</h2>
+
+              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500">
+                {alumnosOrdenados.length}
+              </span>
+            </div>
 
             <p className="mt-1 text-sm text-slate-500">
-              Alumnos inscritos en esta clase
+              Seguimiento individual del grupo
             </p>
           </div>
 
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
-            {alumnos.length} alumno(s)
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <p className="text-xs text-slate-400">Grupo</p>
+
+              <p className="text-sm font-semibold text-slate-700">
+                {claseSeleccionada.grado}° {claseSeleccionada.grupo}
+              </p>
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                value={busquedaAlumno}
+                onChange={(e) => setBusquedaAlumno(e.target.value)}
+                placeholder="Buscar alumno..."
+                className="w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              />
+            </div>
+          </div>
         </div>
 
         {/* ACCIONES */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/50 px-6 py-4">
           <p className="text-sm text-slate-500">
-            Gestiona la asistencia y las actividades del grupo.
+            Registra asistencia o revisa el trabajo del grupo.
           </p>
 
           <div className="flex gap-2">
@@ -372,138 +471,218 @@ function SeccionAlumnos({
               onClick={() => setMostrarModalRevisarActividad(true)}
               className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
             >
-              Revisar una actividad
+              Revisar actividad
             </button>
           </div>
         </div>
 
         {/* TABLA */}
-        <div>
-          {alumnos.length > 0 ? (
-            <div className="p-6">
-              <div className="overflow-hidden rounded-xl border border-slate-200">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50">
-                      {/* NÚMERO */}
-                      <th className="w-12 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        N°
-                      </th>
+        <div className="p-6">
+          <div className="overflow-hidden rounded-xl border border-slate-200">
+            <table className="w-full">
+              <thead>
+                {/* GRUPOS */}
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th
+                    rowSpan={2}
+                    className="w-14 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >
+                    N°
+                  </th>
 
-                      {/* ALUMNO */}
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Alumno
-                      </th>
+                  <th
+                    rowSpan={2}
+                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400"
+                  >
+                    Alumno
+                  </th>
 
-                      {/* PRESENTES */}
-                      <th className="w-20 px-2 py-3 text-center text-xs font-semibold text-slate-500">
-                        Pres.
-                      </th>
+                  <th
+                    colSpan={3}
+                    className="border-l border-slate-200 px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Asistencia
+                  </th>
 
-                      {/* FALTAS */}
-                      <th className="w-20 px-2 py-3 text-center text-xs font-semibold text-slate-500">
-                        Falt.
-                      </th>
+                  <th
+                    colSpan={4}
+                    className="border-l border-slate-200 px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Actividades
+                  </th>
+                </tr>
 
-                      {/* ENTREGADOS */}
-                      <th className="w-20 px-2 py-3 text-center text-xs font-semibold text-slate-500">
-                        Ent.
-                      </th>
+                {/* COLUMNAS */}
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="w-20 border-l border-slate-200 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    Pres.
+                  </th>
 
-                      {/* NO ENTREGADOS */}
-                      <th className="w-20 px-2 py-3 text-center text-xs font-semibold text-slate-500">
-                        No ent.
-                      </th>
-                    </tr>
-                  </thead>
+                  <th className="w-20 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    Falt.
+                  </th>
 
-                  <tbody className="divide-y divide-slate-100">
-                    {alumnosOrdenados.map((alumno, index) => {
-                      const asistencias = asistenciasDelPeriodo(alumno);
+                  <th className="w-20 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    Ret.
+                  </th>
 
-                      const presentes = asistencias.filter(
-                        (asistencia) => asistencia.estado === "presente",
-                      ).length;
+                  <th className="w-20 border-l border-slate-200 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    Ent.
+                  </th>
 
-                      const faltas = asistencias.filter(
-                        (asistencia) => asistencia.estado === "falta",
-                      ).length;
+                  <th className="w-20 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    Pend.
+                  </th>
 
-                      const trabajos = alumno.actividades ?? [];
+                  <th className="w-20 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    No ent.
+                  </th>
 
-                      const trabajosEntregados = trabajos.filter(
-                        (actividad: TypeActividad) =>
-                          actividad.estado === "Entregado",
-                      ).length;
+                  <th className="w-20 px-2 py-2 text-center text-xs font-semibold text-slate-400">
+                    Tarde
+                  </th>
+                </tr>
+              </thead>
 
-                      const trabajosNoEntregados = trabajos.filter(
-                        (actividad: TypeActividad) =>
-                          actividad.estado === "No entregado",
-                      ).length;
+              <tbody className="divide-y divide-slate-100">
+                {alumnosOrdenados.map((alumno, index) => {
+                  const asistencias = asistenciasDelPeriodo(alumno);
 
-                      return (
-                        <tr
-                          key={alumno._id}
-                          className="transition hover:bg-slate-50"
+                  const presentes = asistencias.filter(
+                    (asistencia) => asistencia.estado === "presente",
+                  ).length;
+
+                  const faltas = asistencias.filter(
+                    (asistencia) => asistencia.estado === "falta",
+                  ).length;
+
+                  const retardos = asistencias.filter(
+                    (asistencia) => asistencia.estado === "retardo",
+                  ).length;
+
+                  const trabajos = alumno.actividades ?? [];
+
+                  const trabajosEntregados = trabajos.filter(
+                    (actividad: TypeActividad) =>
+                      actividad.estado === "Entregado",
+                  ).length;
+
+                  const trabajosPendientes = trabajos.filter(
+                    (actividad: TypeActividad) =>
+                      actividad.estado === "Pendiente",
+                  ).length;
+
+                  const trabajosNoEntregados = trabajos.filter(
+                    (actividad: TypeActividad) =>
+                      actividad.estado === "No entregado",
+                  ).length;
+
+                  const trabajosEntregadosTarde = trabajos.filter(
+                    (actividad: TypeActividad) =>
+                      actividad.estado === "Entregado tarde",
+                  ).length;
+
+                  return (
+                    <tr
+                      key={alumno._id}
+                      className="group transition hover:bg-slate-50"
+                    >
+                      <td className="px-3 py-4 text-center text-sm text-slate-400">
+                        {index + 1}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <button
+                          type="button"
+                          onClick={() => verDetalles(alumno._id)}
+                          className="font-medium text-slate-700 transition hover:text-indigo-600"
                         >
-                          {/* NÚMERO DE LISTA */}
-                          <td className="px-3 py-4 text-center text-sm font-medium text-slate-500">
-                            {index + 1}
-                          </td>
+                          {alumno.nombre} {alumno.apellidoPaterno}{" "}
+                          {alumno.apellidoMaterno}
+                        </button>
+                      </td>
 
-                          {/* ALUMNO */}
-                          <td className="px-4 py-4">
-                            <button
-                              type="button"
-                              onClick={() => verDetalles(alumno._id)}
-                              className="text-left text-sm font-semibold text-slate-700 hover:text-indigo-600"
-                            >
-                              {alumno.nombre} {alumno.apellidoPaterno}{" "}
-                              {alumno.apellidoMaterno}
-                            </button>
-                          </td>
+                      {/* ASISTENCIA */}
 
-                          {/* PRESENTES */}
-                          <td className="px-2 py-4 text-center">
-                            <span className="font-semibold text-emerald-600">
-                              {presentes}
-                            </span>
-                          </td>
+                      <td className="border-l border-slate-100 px-2 py-4 text-center">
+                        <span className="inline-flex min-w-8 justify-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-semibold text-emerald-700">
+                          {presentes}
+                        </span>
+                      </td>
 
-                          {/* FALTAS */}
-                          <td className="px-2 py-4 text-center">
-                            <span className="font-semibold text-red-600">
-                              {faltas}
-                            </span>
-                          </td>
+                      <td className="px-2 py-4 text-center">
+                        <span
+                          className={`inline-flex min-w-8 justify-center rounded-md px-2 py-1 text-sm font-semibold ${
+                            faltas > 0
+                              ? "bg-red-50 text-red-700"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {faltas}
+                        </span>
+                      </td>
 
-                          {/* ENTREGADOS */}
-                          <td className="px-2 py-4 text-center">
-                            <span className="font-semibold text-emerald-600">
-                              {trabajosEntregados}
-                            </span>
-                          </td>
+                      <td className="px-2 py-4 text-center">
+                        <span
+                          className={`inline-flex min-w-8 justify-center rounded-md px-2 py-1 text-sm font-semibold ${
+                            retardos > 0
+                              ? "bg-amber-50 text-amber-700"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {retardos}
+                        </span>
+                      </td>
 
-                          {/* NO ENTREGADOS */}
-                          <td className="px-2 py-4 text-center">
-                            <span className="font-semibold text-red-600">
-                              {trabajosNoEntregados}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <div className="px-6 py-12 text-center">
-              <p className="text-sm text-slate-400">
-                Todavía no hay alumnos registrados.
-              </p>
-            </div>
-          )}
+                      {/* TRABAJOS */}
+
+                      <td className="border-l border-slate-100 px-2 py-4 text-center">
+                        <span className="inline-flex min-w-8 justify-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-semibold text-emerald-700">
+                          {trabajosEntregados}
+                        </span>
+                      </td>
+
+                      <td className="px-2 py-4 text-center">
+                        <span
+                          className={`inline-flex min-w-8 justify-center rounded-md px-2 py-1 text-sm font-semibold ${
+                            trabajosPendientes > 0
+                              ? "bg-amber-50 text-amber-700"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {trabajosPendientes}
+                        </span>
+                      </td>
+
+                      <td className="px-2 py-4 text-center">
+                        <span
+                          className={`inline-flex min-w-8 justify-center rounded-md px-2 py-1 text-sm font-semibold ${
+                            trabajosNoEntregados > 0
+                              ? "bg-red-50 text-red-700"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {trabajosNoEntregados}
+                        </span>
+                      </td>
+
+                      <td className="px-2 py-4 text-center">
+                        <span
+                          className={`inline-flex min-w-8 justify-center rounded-md px-2 py-1 text-sm font-semibold ${
+                            trabajosEntregadosTarde > 0
+                              ? "bg-indigo-50 text-indigo-700"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {trabajosEntregadosTarde}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* =========================

@@ -23,7 +23,7 @@ function Home() {
             </p>
           </div>
 
-          <section className="mb-8">
+          <section className="mb-6 border-b border-slate-200 pb-4">
             <ClasesDelDia />
           </section>
 
