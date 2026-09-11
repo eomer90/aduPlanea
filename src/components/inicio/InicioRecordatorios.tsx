@@ -103,13 +103,13 @@ function InicioRecordatorios({ setCantidadRecordatorios }: Props) {
 
   return (
     <section>
-      <h2 className="mb-4 text-xl font-semibold text-slate-900">
+      <h2 className="mb-4 text-xl font-semibold text-slate-900 sm:text-2xl">
         Recordatorios
       </h2>
 
       <div className="space-y-5">
         {recordatorios.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center sm:p-8">
             <p className="text-sm text-slate-500">
               No tienes recordatorios próximos.
             </p>
@@ -131,9 +131,9 @@ function InicioRecordatorios({ setCantidadRecordatorios }: Props) {
                       <button
                         key={e._id}
                         type="button"
-                        className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left shadow-sm transition hover:border-indigo-200 hover:shadow-md"
+                        className="flex w-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-indigo-200 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:px-5"
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex min-w-0 items-start gap-3 sm:items-center sm:gap-4">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -151,24 +151,22 @@ function InicioRecordatorios({ setCantidadRecordatorios }: Props) {
                             </svg>
                           </div>
 
-                          <div>
-                            <h4 className="font-medium text-slate-800">
+                          <div className="min-w-0">
+                            <h4 className="break-words font-medium text-slate-800">
                               {e.nombre}
                             </h4>
 
                             {e.descripcion && (
-                              <p className="mt-1 text-sm text-slate-500">
+                              <p className="mt-1 break-words text-sm text-slate-500">
                                 {e.descripcion}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="ml-4 shrink-0 text-right">
+                        <div className="ml-13 shrink-0 border-t border-slate-100 pt-3 text-left sm:ml-4 sm:border-t-0 sm:pt-0 sm:text-right">
                           <p className="text-sm font-medium text-slate-700">
-                            <p className="text-sm font-medium text-slate-700">
-                              {formatearFecha(e.fecha)}
-                            </p>
+                            {formatearFecha(e.fecha)}
                           </p>
 
                           <p className="mt-1 text-xs text-slate-400">
