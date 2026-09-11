@@ -53,11 +53,11 @@ function Clases() {
 
       <Panel />
 
-      <main className="ml-60 pt-16">
-        <div className="mx-auto max-w-7xl p-8">
-          <div className="mb-8 flex items-center justify-between">
+      <main className="pb-20 pt-16 md:ml-60 md:pb-0">
+        <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-3xl font-semibold text-slate-900">
+              <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">
                 Mis clases
               </h2>
 
@@ -69,7 +69,7 @@ function Clases() {
             <button
               type="button"
               onClick={() => navigate("/nueva-clase")}
-              className="rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md"
+              className="w-full rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-indigo-700 hover:shadow-md sm:w-auto"
             >
               + Crear clase
             </button>

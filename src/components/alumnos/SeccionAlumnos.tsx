@@ -236,8 +236,8 @@ function SeccionAlumnos({
       {/* =========================
           RESUMEN DE ASISTENCIA
       ========================== */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-start justify-between">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="font-semibold text-slate-900">
               Resumen de asistencia
@@ -253,7 +253,7 @@ function SeccionAlumnos({
             onChange={(e) =>
               setFiltroAsistencia(e.target.value as "semana" | "mes")
             }
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 sm:w-auto"
           >
             <option value="semana">Esta semana</option>
             <option value="mes">Este mes</option>
@@ -263,6 +263,7 @@ function SeccionAlumnos({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Presentes</p>
+
             <p className="mt-1 text-2xl font-bold text-emerald-600">
               {totalAsistencias}
             </p>
@@ -270,6 +271,7 @@ function SeccionAlumnos({
 
           <div className="rounded-xl border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Faltas</p>
+
             <p className="mt-1 text-2xl font-bold text-red-600">
               {totalFaltas}
             </p>
@@ -277,6 +279,7 @@ function SeccionAlumnos({
 
           <div className="rounded-xl border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Retardos</p>
+
             <p className="mt-1 text-2xl font-bold text-amber-600">
               {totalRetardos}
             </p>
@@ -284,6 +287,7 @@ function SeccionAlumnos({
 
           <div className="rounded-xl border border-slate-200 p-4">
             <p className="text-sm text-slate-500">Justificados</p>
+
             <p className="mt-1 text-2xl font-bold text-indigo-600">
               {totalJustificados}
             </p>
@@ -294,8 +298,7 @@ function SeccionAlumnos({
       {/* =========================
           RESUMEN DE TRABAJOS
       ========================== */}
-      {/* RESUMEN DE TRABAJOS */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="mb-6">
           <h2 className="font-semibold text-slate-900">
             Seguimiento de actividades
@@ -349,7 +352,10 @@ function SeccionAlumnos({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      {/* =========================
+          ATENCIÓN REQUERIDA
+      ========================== */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="mb-5">
           <h2 className="text-lg font-semibold text-slate-900">
             Atención requerida
@@ -373,20 +379,20 @@ function SeccionAlumnos({
                 key={alumno._id}
                 type="button"
                 onClick={() => verDetalles(alumno._id)}
-                className="flex w-full items-center justify-between rounded-xl border border-slate-100 px-4 py-3 text-left transition hover:border-indigo-200 hover:bg-slate-50"
+                className="flex w-full items-start justify-between gap-3 rounded-xl border border-slate-100 px-3 py-3 text-left transition hover:border-indigo-200 hover:bg-slate-50 sm:items-center sm:px-4"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-50 font-semibold text-red-600">
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 font-semibold text-red-600">
                     !
                   </div>
 
-                  <div>
-                    <p className="font-medium text-slate-800">
+                  <div className="min-w-0">
+                    <p className="break-words font-medium text-slate-800">
                       {alumno.nombre} {alumno.apellidoPaterno}{" "}
                       {alumno.apellidoMaterno}
                     </p>
 
-                    <div className="mt-1 flex gap-3 text-xs">
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
                       {alumno.faltas >= 3 && (
                         <span className="text-red-600">
                           {alumno.faltas} faltas
@@ -402,7 +408,7 @@ function SeccionAlumnos({
                   </div>
                 </div>
 
-                <span className="text-lg text-slate-400">→</span>
+                <span className="shrink-0 text-lg text-slate-400">→</span>
               </button>
             ))}
           </div>
@@ -412,10 +418,9 @@ function SeccionAlumnos({
       {/* =========================
           ALUMNOS
       ========================== */}
-      {/* ALUMNOS */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {/* HEADER */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 p-6">
+        <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-3">
               <h2 className="font-semibold text-slate-900">Alumnos</h2>
@@ -430,7 +435,7 @@ function SeccionAlumnos({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto">
             <div>
               <p className="text-xs text-slate-400">Grupo</p>
 
@@ -439,25 +444,25 @@ function SeccionAlumnos({
               </p>
             </div>
 
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <input
                 type="text"
                 value={busquedaAlumno}
                 onChange={(e) => setBusquedaAlumno(e.target.value)}
                 placeholder="Buscar alumno..."
-                className="w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 sm:w-56"
               />
             </div>
           </div>
         </div>
 
         {/* ACCIONES */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/50 px-6 py-4">
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Registra asistencia o revisa el trabajo del grupo.
           </p>
 
-          <div className="flex gap-2">
+          <div className="grid w-full gap-2 sm:flex sm:w-auto">
             <button
               type="button"
               onClick={() => setModalPasarLista(true)}
@@ -477,9 +482,9 @@ function SeccionAlumnos({
         </div>
 
         {/* TABLA */}
-        <div className="p-6">
-          <div className="overflow-hidden rounded-xl border border-slate-200">
-            <table className="w-full">
+        <div className="p-4 sm:p-6">
+          <div className="overflow-x-auto rounded-xl border border-slate-200">
+            <table className="w-full min-w-[850px]">
               <thead>
                 {/* GRUPOS */}
                 <tr className="border-b border-slate-200 bg-slate-50">
@@ -492,7 +497,7 @@ function SeccionAlumnos({
 
                   <th
                     rowSpan={2}
-                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400"
+                    className="min-w-[220px] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400"
                   >
                     Alumno
                   </th>
@@ -595,7 +600,7 @@ function SeccionAlumnos({
                         <button
                           type="button"
                           onClick={() => verDetalles(alumno._id)}
-                          className="font-medium text-slate-700 transition hover:text-indigo-600"
+                          className="text-left font-medium text-slate-700 transition hover:text-indigo-600"
                         >
                           {alumno.nombre} {alumno.apellidoPaterno}{" "}
                           {alumno.apellidoMaterno}
@@ -688,7 +693,7 @@ function SeccionAlumnos({
         {/* =========================
             AGREGAR ALUMNOS
         ========================== */}
-        <div className="border-t border-slate-200 p-6">
+        <div className="border-t border-slate-200 p-4 sm:p-6">
           {mostrarFormAlumnos && (
             <FormAlumnos
               setMostrarFormALumnos={setMostrarFormALumnos}
@@ -701,7 +706,7 @@ function SeccionAlumnos({
           )}
 
           {mostrarBotonAlumnos && (
-            <div className="flex justify-center gap-3">
+            <div className="grid gap-2 sm:flex sm:justify-center">
               <button
                 type="button"
                 onClick={() => {

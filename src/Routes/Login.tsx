@@ -43,6 +43,9 @@ function Login() {
       }
 
       localStorage.setItem("token", res.token);
+      localStorage.setItem("nombreUsuario", res.usuario.nombre);
+      console.log("USUARIO LOGIN:", res.usuario);
+      console.log("NOMBRE GUARDADO:", res.usuario.nombre);
       navigate("/");
       console.log(res);
     } catch (error) {

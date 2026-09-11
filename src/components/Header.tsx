@@ -8,7 +8,7 @@ function Header() {
 
   const cerrarSesion = () => {
     localStorage.removeItem("token");
-    navigate("/");
+    navigate("/login");
   };
 
   return (

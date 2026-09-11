@@ -233,6 +233,7 @@ function FormEvaluacion({
         materia: claseSeleccionada.materia,
         claseId: claseSeleccionada._id,
       };
+
       const req = await fetch(`${SERVER}/evaluaciones`, {
         method: "POST",
         headers: {
@@ -266,24 +267,39 @@ function FormEvaluacion({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 px-3 py-4 sm:items-center sm:px-4 sm:py-6">
       {cargando && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
-          <p className="rounded-lg bg-white px-5 py-3 text-sm font-medium text-slate-700 shadow">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 px-4">
+          <p className="rounded-lg bg-white px-5 py-3 text-center text-sm font-medium text-slate-700 shadow">
             Guardando evaluación...
           </p>
         </div>
       )}
 
-      <div className="max-h-[90vh] w-full max-w-6xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-slate-900">
-            Agregar evaluación
-          </h2>
+      <div className="my-auto max-h-[95vh] w-full max-w-6xl overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:max-h-[90vh] sm:p-6 lg:p-8">
+        {/* ENCABEZADO */}
+        <div className="mb-6 flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+              Agregar evaluación
+            </h2>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Registra la evaluación y los resultados de cada alumno.
-          </p>
+            <p className="mt-1 text-sm text-slate-500">
+              Registra la evaluación y los resultados de cada alumno.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setFormEvaluacion(evaluacionInicial);
+              setMotrarModalEvaluacion(false);
+            }}
+            className="self-end rounded-lg px-2 py-1 text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 sm:self-start"
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -351,139 +367,148 @@ function FormEvaluacion({
           {/* TIPO DE EVALUACIÓN */}
 
           {formEvaluacion.instrumento !== "ContenidosPDA" && (
-            <div className="flex gap-6 border-t border-slate-200 pt-5">
+            <div className="flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
               <p className="text-sm font-medium text-slate-700">
-                Seleccciona si la evaluación es
+                Selecciona si la evaluación es
               </p>
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formEvaluacion.cuantitativa}
-                  onChange={(e) =>
-                    setFormEvaluacion({
-                      ...formEvaluacion,
-                      cuantitativa: e.target.checked,
-                    })
-                  }
-                  className="h-4 w-4"
-                />
 
-                <span className="text-sm font-medium text-slate-700">
-                  Cuantitativa
-                </span>
-              </label>
+              <div className="flex flex-wrap gap-5">
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formEvaluacion.cuantitativa}
+                    onChange={(e) =>
+                      setFormEvaluacion({
+                        ...formEvaluacion,
+                        cuantitativa: e.target.checked,
+                      })
+                    }
+                    className="h-4 w-4"
+                  />
 
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formEvaluacion.cualitativa}
-                  onChange={(e) =>
-                    setFormEvaluacion({
-                      ...formEvaluacion,
-                      cualitativa: e.target.checked,
-                    })
-                  }
-                  className="h-4 w-4"
-                />
+                  <span className="text-sm font-medium text-slate-700">
+                    Cuantitativa
+                  </span>
+                </label>
 
-                <span className="text-sm font-medium text-slate-700">
-                  Cualitativa
-                </span>
-              </label>
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formEvaluacion.cualitativa}
+                    onChange={(e) =>
+                      setFormEvaluacion({
+                        ...formEvaluacion,
+                        cualitativa: e.target.checked,
+                      })
+                    }
+                    className="h-4 w-4"
+                  />
+
+                  <span className="text-sm font-medium text-slate-700">
+                    Cualitativa
+                  </span>
+                </label>
+              </div>
             </div>
           )}
 
           {/* CONTENIDOS Y PDA */}
 
           {formEvaluacion.instrumento === "ContenidosPDA" && (
-            <div>
+            <div className="space-y-6">
               {alumnos.map((a) => (
                 <div
                   key={a._id}
-                  className="mb-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
                 >
-                  <table className="w-full table-fixed border-collapse">
-                    <thead>
-                      <tr>
-                        <th
-                          colSpan={2}
-                          className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-left text-lg font-semibold text-slate-800"
-                        >
-                          {a.nombre} {a.apellidoPaterno} {a.apellidoMaterno}
-                        </th>
-                      </tr>
-                    </thead>
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[700px] table-fixed border-collapse">
+                      <thead>
+                        <tr>
+                          <th
+                            colSpan={2}
+                            className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-left text-base font-semibold text-slate-800 sm:text-lg"
+                          >
+                            {a.nombre} {a.apellidoPaterno} {a.apellidoMaterno}
+                          </th>
+                        </tr>
+                      </thead>
 
-                    <tbody>
-                      {filtro.map((f) => (
-                        <Fragment key={f.id}>
-                          {/* Campo formativo */}
+                      <tbody>
+                        {filtro.map((f) => (
+                          <Fragment key={f.id}>
+                            {/* Campo formativo */}
 
-                          <tr>
-                            <td
-                              colSpan={2}
-                              className="border-b border-slate-200 bg-indigo-50 px-4 py-3 text-left text-base font-semibold text-indigo-700"
-                            >
-                              {f.nombre}
-                            </td>
-                          </tr>
+                            <tr>
+                              <td
+                                colSpan={2}
+                                className="border-b border-slate-200 bg-indigo-50 px-4 py-3 text-left text-sm font-semibold text-indigo-700 sm:text-base"
+                              >
+                                {f.nombre}
+                              </td>
+                            </tr>
 
-                          {/* Encabezados */}
+                            {/* Encabezados */}
 
-                          <tr>
-                            <th className="w-1/2 border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-600">
-                              PDAs
-                            </th>
+                            <tr>
+                              <th className="w-1/2 border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-600">
+                                PDAs
+                              </th>
 
-                            <th className="w-1/2 border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-600">
-                              Manifestaciones del alumno
-                            </th>
-                          </tr>
+                              <th className="w-1/2 border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-600">
+                                Manifestaciones del alumno
+                              </th>
+                            </tr>
 
-                          {/* PDAs */}
+                            {/* PDAs */}
 
-                          {f.contenidos.map((c) =>
-                            c.pdas.map((p) => {
-                              const pdaId = `${c.id}-${p.id}`;
+                            {f.contenidos.map((c) =>
+                              c.pdas.map((p) => {
+                                const pdaId = `${c.id}-${p.id}`;
 
-                              const resultado = formEvaluacion.resultados.find(
-                                (resultado) => resultado.alumnoId === a._id,
-                              );
+                                const resultado =
+                                  formEvaluacion.resultados.find(
+                                    (resultado) => resultado.alumnoId === a._id,
+                                  );
 
-                              const manifestacion =
-                                resultado?.manifestaciones.find(
-                                  (manifestacion) =>
-                                    manifestacion.pdaId === pdaId,
+                                const manifestacion =
+                                  resultado?.manifestaciones.find(
+                                    (manifestacion) =>
+                                      manifestacion.pdaId === pdaId,
+                                  );
+
+                                return (
+                                  <tr key={`${a._id}-${pdaId}`}>
+                                    <td className="w-1/2 border-b border-slate-100 px-4 py-4 align-top text-sm text-slate-700">
+                                      <p>{p.descripcion}</p>
+                                    </td>
+
+                                    <td className="w-1/2 border-b border-slate-100 px-4 py-4 align-top">
+                                      <textarea
+                                        value={
+                                          manifestacion?.manifestacion || ""
+                                        }
+                                        onChange={(e) =>
+                                          cambiarManifestacion(
+                                            a._id,
+                                            pdaId,
+                                            e.target.value,
+                                          )
+                                        }
+                                        rows={6}
+                                        placeholder="Escribe la manifestación del alumno..."
+                                        className="w-full resize-none rounded-lg border border-slate-300 px-3 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                      />
+                                    </td>
+                                  </tr>
                                 );
-                              return (
-                                <tr key={`${a._id}-${pdaId}`}>
-                                  <td className="w-1/2 border-b border-slate-100 px-4 py-4 align-top text-sm text-slate-700">
-                                    <p>{p.descripcion}</p>
-                                  </td>
-
-                                  <td className="w-1/2 border-b border-slate-100 px-4 py-4 align-top">
-                                    <textarea
-                                      value={manifestacion?.manifestacion || ""}
-                                      onChange={(e) =>
-                                        cambiarManifestacion(
-                                          a._id,
-                                          pdaId,
-                                          e.target.value,
-                                        )
-                                      }
-                                      rows={6}
-                                      placeholder="Escribe la manifestación del alumno..."
-                                      className="w-full resize-none rounded-lg border border-slate-300 px-3 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                                    />
-                                  </td>
-                                </tr>
-                              );
-                            }),
-                          )}
-                        </Fragment>
-                      ))}
-                    </tbody>
-                  </table>
+                              }),
+                            )}
+                          </Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ))}
             </div>
@@ -497,23 +522,23 @@ function FormEvaluacion({
                 <table className="w-full min-w-[900px]">
                   <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                      <th className="min-w-[220px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
                         Alumno
                       </th>
 
                       {formEvaluacion.cuantitativa && (
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                        <th className="w-32 px-4 py-3 text-left text-sm font-semibold text-slate-700">
                           Calificación
                         </th>
                       )}
 
                       {formEvaluacion.cualitativa && (
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                        <th className="min-w-[220px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
                           Nivel de desempeño
                         </th>
                       )}
 
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                      <th className="min-w-[300px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
                         Observaciones
                       </th>
                     </tr>
@@ -551,7 +576,7 @@ function FormEvaluacion({
                                   )
                                 }
                                 placeholder="0 - 10"
-                                className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                               />
                             </td>
                           )}
@@ -567,7 +592,7 @@ function FormEvaluacion({
                                     e.target.value,
                                   )
                                 }
-                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                               >
                                 <option value="">Selecciona</option>
                                 <option value="Requiere apoyo">
@@ -596,7 +621,7 @@ function FormEvaluacion({
                               }
                               rows={2}
                               placeholder="Observaciones..."
-                              className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                              className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                             />
                           </td>
                         </tr>
@@ -609,14 +634,14 @@ function FormEvaluacion({
 
           {/* BOTONES */}
 
-          <div className="flex justify-end gap-2 border-t border-slate-200 pt-5">
+          <div className="flex flex-col-reverse gap-2 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => {
                 setFormEvaluacion(evaluacionInicial);
                 setMotrarModalEvaluacion(false);
               }}
-              className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:w-auto"
             >
               Cancelar
             </button>
@@ -624,7 +649,7 @@ function FormEvaluacion({
             <button
               type="submit"
               disabled={cargando}
-              className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300 sm:w-auto"
             >
               Guardar evaluación
             </button>

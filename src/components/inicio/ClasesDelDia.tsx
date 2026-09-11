@@ -24,7 +24,11 @@ const semana = [
   "sabado",
 ];
 
-function ClasesDelDia() {
+interface Props {
+  setCantidadClasesHoy: React.Dispatch<React.SetStateAction<number>>;
+}
+
+function ClasesDelDia({ setCantidadClasesHoy }: Props) {
   const [clasesDia, setClasesDia] = useState<TypeClase[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
 
@@ -56,6 +60,8 @@ function ClasesDelDia() {
       });
 
       setClasesDia(clases);
+      setCantidadClasesHoy(clases.length);
+
       console.log(clases);
     } catch (error) {
       console.log(error);
