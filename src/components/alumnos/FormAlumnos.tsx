@@ -5,7 +5,6 @@ import { useState } from "react";
 import ModalCargando from "../ModalCargando";
 
 const SERVER = import.meta.env.VITE_API_URL;
-// const SERVER = "http://localhost:3000";
 const ROUTE = "/alumnos";
 
 type TypeClase = TypeClaseNueva & {
@@ -22,6 +21,7 @@ interface FormProp {
   obtenerAlumnos: () => Promise<void>;
   claseSeleccionada: TypeClase;
 }
+
 function FormAlumnos({
   formAlumno,
   setFormAlumno,
@@ -31,9 +31,8 @@ function FormAlumnos({
   claseSeleccionada,
 }: FormProp) {
   const [cargando, setCargando] = useState<boolean>(false);
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     setFormAlumno({
@@ -44,12 +43,16 @@ function FormAlumnos({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const datos = {
       nombre: formAlumno.nombre,
       apellidoPaterno: formAlumno.apellidoPaterno,
       apellidoMaterno: formAlumno.apellidoMaterno,
-      grado: formAlumno.grado,
-      grupo: formAlumno.grupo,
+
+      // El grado y grupo salen automáticamente de la clase
+      grado: claseSeleccionada.grado,
+      grupo: claseSeleccionada.grupo,
+
       materias: [
         {
           claseId: claseSeleccionada._id,
@@ -58,12 +61,15 @@ function FormAlumnos({
           evaluaciones: [],
         },
       ],
+
       actividades: [],
     };
 
     setCargando(true);
+
     try {
       const token = localStorage.getItem("token");
+
       const req = await fetch(SERVER + ROUTE, {
         method: "POST",
         headers: {
@@ -72,14 +78,20 @@ function FormAlumnos({
         },
         body: JSON.stringify(datos),
       });
+
       const res = await req.json();
-      if (res.error) {
+
+      if (!req.ok) {
         console.log(res.mensaje);
+        return;
       }
+
       setFormAlumno(nuevoAlumno);
       setMostrarFormALumnos(false);
       setMostrarBotonAlumnos(true);
-      obtenerAlumnos();
+
+      await obtenerAlumnos();
+
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -91,7 +103,7 @@ function FormAlumnos({
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex items-end gap-3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
           <label className="flex-1">
             <span className="text-sm font-medium text-slate-700">
               Nombre(s)
@@ -103,6 +115,7 @@ function FormAlumnos({
               value={formAlumno.nombre}
               placeholder="Ej. Juan"
               onChange={handleChange}
+              required
               className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
@@ -118,6 +131,7 @@ function FormAlumnos({
               value={formAlumno.apellidoPaterno}
               placeholder="Ej. Pérez"
               onChange={handleChange}
+              required
               className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
@@ -133,35 +147,7 @@ function FormAlumnos({
               value={formAlumno.apellidoMaterno}
               placeholder="Ej. García"
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-            />
-          </label>
-
-          <label className="w-28">
-            <span className="text-sm font-medium text-slate-700">Grado</span>
-
-            <select
-              name="grado"
-              value={formAlumno.grado}
-              onChange={handleChange}
-              className="mt-2 w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-            >
-              <option value="">Selecciona</option>
-              <option value="1">1°</option>
-              <option value="2">2°</option>
-              <option value="3">3°</option>
-            </select>
-          </label>
-
-          <label className="w-24">
-            <span className="text-sm font-medium text-slate-700">Grupo</span>
-
-            <input
-              type="text"
-              name="grupo"
-              value={formAlumno.grupo}
-              placeholder="B"
-              onChange={handleChange}
+              required
               className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
@@ -172,29 +158,34 @@ function FormAlumnos({
               setMostrarFormALumnos(false);
               setMostrarBotonAlumnos(true);
             }}
-            className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="flex h-10 w-full shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 sm:mb-1 sm:w-10"
           >
             ✕
           </button>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-200 pt-5">
-          <button
-            type="button"
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
-          >
-            Agregar hoja de Excel
-          </button>
+        <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
+          <p className="text-sm text-slate-600">El alumno se agregará a:</p>
 
+          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium text-indigo-700">
+            <span>{claseSeleccionada.materia}</span>
+            <span>
+              {claseSeleccionada.grado}° {claseSeleccionada.grupo}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
           <button
             type="submit"
             disabled={cargando}
-            className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-300"
+            className="w-full rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-300 sm:w-auto"
           >
             Guardar alumno
           </button>
         </div>
       </form>
+
       {cargando && <ModalCargando />}
     </>
   );

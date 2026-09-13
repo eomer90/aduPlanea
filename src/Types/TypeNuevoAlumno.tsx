@@ -5,11 +5,13 @@ export type TypeAsistencia = {
 };
 
 export type TypeMaterias = {
+  claseId: string;
   nombre: string;
   asistencias: TypeAsistencia[];
 };
 
 export type TypeActividad = {
+  claseId: string;
   titulo: string;
   fecha: string;
   estado: "Pendiente" | "Entregado" | "No entregado" | "Entregado tarde";

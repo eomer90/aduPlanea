@@ -1,19 +1,19 @@
 export type TypeNuevoUsuario = {
-  nombreEscuela: string;
-  nivelEducativo: string;
   nombreUsuario: string;
   correo: string;
   username: string;
   password: string;
+  nivelEducativo: string;
+  escuelaId: string;
 };
 
 const nuevoUsuarioInicial: TypeNuevoUsuario = {
-  nombreEscuela: "",
-  nivelEducativo: "",
   nombreUsuario: "",
   correo: "",
   username: "",
   password: "",
+  nivelEducativo: "",
+  escuelaId: "",
 };
 
 export default nuevoUsuarioInicial;

@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useState } from "react";
 import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
 import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
-import type { TypeEvaluacion } from "../../Types/TypeEvaluacion";
+import type { TypeEvaluacion } from "../../Types/TypeNuevaEvaluacion";
 import contenidosPdaPreescolar from "../../components/ContenidosPdaPreescolar";
-import evaluacionInicial from "../../Types/TypeEvaluacion";
+import evaluacionInicial from "../../Types/TypeNuevaEvaluacion";
 
 const SERVER = import.meta.env.VITE_API_URL;
 

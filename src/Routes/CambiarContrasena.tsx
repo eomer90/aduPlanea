@@ -1,54 +1,55 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import loginInicial from "../Types/TypeLogin";
 import ModalCargando from "../components/ModalCargando";
 import ModalMensaje from "../components/ModalMensaje";
-import type { TypeLogin } from "../Types/TypeLogin";
 
 const SERVER = import.meta.env.VITE_API_URL;
-// const SERVER = "http://localhost:3000";
 
-function Login() {
-  const [formLogin, setFormLogin] = useState<TypeLogin>(loginInicial);
-  const [cargando, setCargando] = useState<boolean>(false);
+function CambiarContrasena() {
+  const [passwordActual, setPasswordActual] = useState("");
+  const [passwordNueva, setPasswordNueva] = useState("");
+  const [confirmarPassword, setConfirmarPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setFormLogin({
-      ...formLogin,
-      [name]: value,
-    });
-  };
-
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (passwordNueva !== confirmarPassword) {
+      setMensaje("Las contraseñas nuevas no coinciden.");
+      return;
+    }
     setCargando(true);
+    setMensaje("");
     try {
-      const req = await fetch(`${SERVER}/login`, {
-        method: "POST",
+      const token = localStorage.getItem("token");
+      const req = await fetch(`${SERVER}/login/change-password`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formLogin),
+        body: JSON.stringify({
+          passwordActual,
+          passwordNueva,
+        }),
       });
       const res = await req.json();
       if (!req.ok) {
         setMensaje(res.mensaje);
         return;
       }
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("nombreUsuario", res.usuario.nombre);
-      localStorage.setItem("username", res.usuario.username);
       setMensaje(res.mensaje);
+      setPasswordActual("");
+      setPasswordNueva("");
+      setConfirmarPassword("");
       setTimeout(() => {
         navigate("/inicio");
       }, 2000);
     } catch (error) {
       console.log(error);
+      setMensaje("Ocurrió un error. Intenta nuevamente.");
     } finally {
       setCargando(false);
     }
@@ -59,71 +60,76 @@ function Login() {
       <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-slate-900">
-            Iniciar sesión
+            Cambiar contraseña
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
-            Ingresa a tu cuenta de EduPlanea.
+            Actualiza la contraseña de tu cuenta.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <label className="block">
             <span className="text-sm font-medium text-slate-700">
-              Nombre de usuario
+              Contraseña actual
             </span>
 
             <input
-              type="text"
-              name="username"
-              value={formLogin.username}
-              onChange={handleChange}
-              placeholder="Ej. juanperez"
+              type="password"
+              value={passwordActual}
+              onChange={(e) => setPasswordActual(e.target.value)}
+              placeholder="••••••••"
+              required
               className="mt-2 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
 
           <label className="block">
             <span className="text-sm font-medium text-slate-700">
-              Contraseña
+              Nueva contraseña
             </span>
 
             <input
               type="password"
-              name="password"
-              value={formLogin.password}
-              onChange={handleChange}
+              value={passwordNueva}
+              onChange={(e) => setPasswordNueva(e.target.value)}
               placeholder="••••••••"
+              required
+              className="mt-2 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-slate-700">
+              Confirmar nueva contraseña
+            </span>
+
+            <input
+              type="password"
+              value={confirmarPassword}
+              onChange={(e) => setConfirmarPassword(e.target.value)}
+              placeholder="••••••••"
+              required
               className="mt-2 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
 
           <button
-            type="button"
-            onClick={() => navigate("/recuperar-contrasena")}
-            disabled={cargando}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-indigo-600"
-          >
-            ¿Olvidaste tu contraseña?
-          </button>
-
-          <button
             type="submit"
-            disabled={cargando}
-            className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
+            className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700"
           >
-            Iniciar sesión
+            Cambiar contraseña
           </button>
 
           <button
             type="button"
-            onClick={() => navigate("/")}
-            disabled={cargando}
-            className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
+            onClick={() => navigate("/inicio")}
+            className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
           >
             Regresar
           </button>
         </form>
+
         {cargando && <ModalCargando />}
         {mensaje && (
           <ModalMensaje mensaje={mensaje} cerrar={() => setMensaje("")} />
@@ -133,4 +139,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default CambiarContrasena;

@@ -1,21 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { TypeClaseNueva } from "../Types/TypeClaseNueva";
 import Tarjetas from "../components/clases/Tarjetas";
 import Header from "../components/Header";
 import Panel from "../components/Panel";
 import ModalCargando from "../components/ModalCargando";
-
-type TypeClase = TypeClaseNueva & {
-  _id: string;
-};
+import type { TypeClaseMongo } from "../Types/TypeClaseMongo";
 
 const SERVER = import.meta.env.VITE_API_URL;
 // const SERVER = "http://localhost:3000";
-const ROUTE = "/clases";
 
 function Clases() {
-  const [clases, setClases] = useState<TypeClase[]>([]);
+  const [clases, setClases] = useState<TypeClaseMongo[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -24,18 +19,17 @@ function Clases() {
     setCargando(true);
     try {
       const token = localStorage.getItem("token");
-      const req = await fetch(SERVER + ROUTE, {
+      const req = await fetch(`${SERVER}/clases`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (!req.ok) {
-        throw new Error(`Error: ${req.status}`);
-      }
       const res = await req.json();
+      if (!req.ok) {
+        console.log(res.mensaje);
+        return;
+      }
       setClases(res.clases);
-      console.log(res);
     } catch (error) {
       console.log(error);
     } finally {

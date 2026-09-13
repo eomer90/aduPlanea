@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import type { TypeEvaluacion } from "../../Types/TypeEvaluacion";
+import type { TypeEvaluacion } from "../../Types/TypeNuevaEvaluacion";
 import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
 import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
 import contenidosPdaPreescolar from "../../components/ContenidosPdaPreescolar";

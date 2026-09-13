@@ -3,8 +3,8 @@ import ModalEvaluacion from "./ModalEvaluacion";
 import ModalEditarEvaluacion from "./ModalEditarEvaluacion";
 import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
 import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
-import type { TypeEvaluacion } from "../../Types/TypeEvaluacion";
-import evaluacionInicial from "../../Types/TypeEvaluacion";
+import type { TypeEvaluacion } from "../../Types/TypeNuevaEvaluacion";
+import evaluacionInicial from "../../Types/TypeNuevaEvaluacion";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;

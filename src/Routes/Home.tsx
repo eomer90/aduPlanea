@@ -11,34 +11,28 @@ function Home() {
   const [cantidadClasesHoy, setCantidadClasesHoy] = useState<number>(0);
   const [cantidadAlumnos, setCantidadAlumnos] = useState<number>(0);
 
-  const nombreUsuario = localStorage.getItem("nombreUsuario");
+  const username = localStorage.getItem("username");
+
+  const obtenerAlumnos = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const req = await fetch(SERVER + "/alumnos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await req.json();
+      if (!req.ok) {
+        console.log(res.mensaje);
+        return;
+      }
+      setCantidadAlumnos(res.alumnos.length);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    const obtenerAlumnos = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        const req = await fetch(SERVER + "/alumnos", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const res = await req.json();
-
-        console.log("RESPUESTA ALUMNOS:", res);
-
-        if (res.error) {
-          console.log(res.mensaje);
-          return;
-        }
-
-        setCantidadAlumnos(res.alumnos.length);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
     obtenerAlumnos();
   }, []);
 
@@ -50,10 +44,9 @@ function Home() {
 
       <main className="pt-16 md:ml-60">
         <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-          {/* BIENVENIDA */}
           <div className="mb-8 border-b border-slate-200 pb-6">
             <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">
-              {nombreUsuario ? `¡Hola, ${nombreUsuario}! 👋` : "¡Hola! 👋"}
+              {username ? `¡Hola, ${username}! 👋` : "¡Hola! 👋"}
             </h2>
 
             <p className="mt-2 text-sm text-slate-500 sm:text-base">
@@ -66,9 +59,7 @@ function Home() {
             </p>
           </div>
 
-          {/* RESUMEN */}
           <section className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {/* CLASES */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm font-medium text-slate-500">
                 Clases de hoy
@@ -83,7 +74,6 @@ function Home() {
               </p>
             </div>
 
-            {/* ALUMNOS */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm font-medium text-slate-500">Alumnos</p>
 
@@ -94,7 +84,6 @@ function Home() {
               <p className="mt-1 text-sm text-slate-400">Alumnos registrados</p>
             </div>
 
-            {/* RECORDATORIOS */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm font-medium text-slate-500">
                 Recordatorios
@@ -107,7 +96,6 @@ function Home() {
               <p className="mt-1 text-sm text-slate-400">Pendientes</p>
             </div>
 
-            {/* ANOTACIONES */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <p className="text-sm font-medium text-slate-500">Anotaciones</p>
 
@@ -119,19 +107,16 @@ function Home() {
             </div>
           </section>
 
-          {/* CLASES DEL DÍA */}
           <section className="mb-8 border-b border-slate-200 pb-8">
             <ClasesDelDia setCantidadClasesHoy={setCantidadClasesHoy} />
           </section>
 
-          {/* RECORDATORIOS */}
           <section className="mb-8 border-b border-slate-200 pb-8">
             <InicioRecordatorios
               setCantidadRecordatorios={setCantidadRecordatorios}
             />
           </section>
 
-          {/* ANOTACIONES */}
           <section>
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div className="mb-5">

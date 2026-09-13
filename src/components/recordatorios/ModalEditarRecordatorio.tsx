@@ -22,9 +22,12 @@ function ModalEditarRecordatorio({
   recordatorioSeleccionado,
   obtenerRecordatorios,
 }: Props) {
-  const [recordatorio, setRecordatorio] = useState<TypeNuevoRecordatorio>(
-    recordatorioSeleccionado,
-  );
+  const [recordatorio, setRecordatorio] = useState<TypeNuevoRecordatorio>({
+    ...recordatorioSeleccionado,
+    fecha: recordatorioSeleccionado.fecha
+      ? new Date(recordatorioSeleccionado.fecha).toISOString().split("T")[0]
+      : "",
+  });
 
   const [cargando, setCargando] = useState<boolean>(false);
 
@@ -48,6 +51,8 @@ function ModalEditarRecordatorio({
     setCargando(true);
 
     try {
+      console.log("Fecha que se va a guardar:", recordatorio.fecha);
+      console.log("Recordatorio que se va a enviar:", recordatorio);
       const token = localStorage.getItem("token");
 
       const req = await fetch(
@@ -206,21 +211,21 @@ function ModalEditarRecordatorio({
         </div>
 
         {/* ACCIONES */}
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={eliminarRecordatorio}
             disabled={eliminando}
-            className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+            className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 sm:w-auto"
           >
             Eliminar
           </button>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={() => setAbrirModalEditarRecordatorio(false)}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:w-auto"
             >
               Cancelar
             </button>
@@ -228,7 +233,7 @@ function ModalEditarRecordatorio({
             <button
               type="submit"
               disabled={cargando}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 sm:w-auto"
             >
               Guardar cambios
             </button>

@@ -25,4 +25,5 @@ const defaultClaseNueva: TypeClaseNueva = {
   periodoInicio: "",
   periodoFin: "",
 };
+
 export default defaultClaseNueva;

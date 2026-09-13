@@ -1,12 +1,14 @@
 import { useState } from "react";
 import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
 import ModalCargando from "../ModalCargando";
+import type { TypeClase } from "./SeccionAlumnos";
 
 type TypeAlumnos = TypeNuevoAlumno & {
   _id: string;
 };
 
 type TypeActividad = {
+  claseId: string;
   titulo: string;
   fecha: string;
   estado: "Pendiente" | "Entregado" | "No entregado" | "Entregado tarde";
@@ -21,6 +23,7 @@ type TypeActividadAlumno = {
 
 interface AlumnosProp {
   alumnosOrdenados: TypeAlumnos[];
+  claseSeleccionada: TypeClase;
   setMostrarModalRevisarActividad: React.Dispatch<
     React.SetStateAction<boolean>
   >;
@@ -32,6 +35,7 @@ const ROUTE2 = "/alumnos";
 
 function ModalRevisarActividad({
   alumnosOrdenados,
+  claseSeleccionada,
   setMostrarModalRevisarActividad,
   obtenerAlumnos,
 }: AlumnosProp) {
@@ -108,6 +112,7 @@ function ModalRevisarActividad({
         if (!actividadAlumno) continue;
 
         const nuevaActividad: TypeActividad = {
+          claseId: claseSeleccionada._id,
           titulo: actividad.titulo,
           fecha: actividad.fecha,
           estado: actividadAlumno.estado,

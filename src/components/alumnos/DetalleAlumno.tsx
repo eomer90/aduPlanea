@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
 import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
-import type { TypeActividad } from "../../Types/TypeNuevoAlumno";
 import ModalCargando from "../ModalCargando";
 
 interface Prop {
@@ -23,17 +22,21 @@ function DetalleAlumno({
   claseSeleccionada,
 }: Prop) {
   const [alumnoEncontrado, setAlumnoEncontrado] = useState<TypeNuevoAlumno>();
+
   const [cargando, setCargando] = useState<boolean>(false);
 
   const obtenerAlumno = async () => {
     setCargando(true);
+
     try {
       const token = localStorage.getItem("token");
+
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       const res = await req.json();
 
       if (res.error) {
@@ -68,16 +71,18 @@ function DetalleAlumno({
 
   const cambiarEstadoAsistencia = (
     index: number,
-    estado: "presente" | "falta" | "retardo" | "justificado" | "",
+    estado: "presente" | "falta" | "retardo" | "justificado",
   ) => {
+    if (!alumnoEncontrado) return;
+
     const nuevasAsistencias = [...asistencias];
 
     nuevasAsistencias[index] = {
       ...nuevasAsistencias[index],
-      ...(estado === "" ? { fecha: "" } : { estado }),
+      estado,
     };
 
-    const nuevasMaterias = alumnoEncontrado!.materias.map((mat) =>
+    const nuevasMaterias = alumnoEncontrado.materias.map((mat) =>
       mat.nombre === claseSeleccionada.materia
         ? {
             ...mat,
@@ -87,17 +92,19 @@ function DetalleAlumno({
     );
 
     setAlumnoEncontrado({
-      ...alumnoEncontrado!,
+      ...alumnoEncontrado,
       materias: nuevasMaterias,
     });
   };
 
   const cambiarActividad = (
     index: number,
-    campo: keyof TypeActividad,
+    campo: "titulo" | "estado" | "observaciones",
     valor: string,
   ) => {
-    const nuevasActividades = [...(alumnoEncontrado!.actividades || [])];
+    if (!alumnoEncontrado) return;
+
+    const nuevasActividades = [...(alumnoEncontrado.actividades || [])];
 
     nuevasActividades[index] = {
       ...nuevasActividades[index],
@@ -105,7 +112,7 @@ function DetalleAlumno({
     };
 
     setAlumnoEncontrado({
-      ...alumnoEncontrado!,
+      ...alumnoEncontrado,
       actividades: nuevasActividades,
     });
   };
@@ -113,20 +120,28 @@ function DetalleAlumno({
   const guardarCambios = async () => {
     if (!alumnoEncontrado) return;
 
-    console.log("ALUMNO ANTES DE GUARDAR:", alumnoEncontrado);
     setCargando(true);
+
     try {
       const token = localStorage.getItem("token");
-      console.log("SERVER:", SERVER);
-      console.log("URL PATCH:", `${SERVER}${ROUTE2}/${alumnoSeleccionado}`);
-      console.log("ALUMNO ANTES DE GUARDAR:", alumnoEncontrado);
+
+      const datos = {
+        nombre: alumnoEncontrado.nombre,
+        apellidoPaterno: alumnoEncontrado.apellidoPaterno,
+        apellidoMaterno: alumnoEncontrado.apellidoMaterno,
+        grado: alumnoEncontrado.grado,
+        grupo: alumnoEncontrado.grupo,
+        materias: alumnoEncontrado.materias,
+        actividades: alumnoEncontrado.actividades || [],
+      };
+
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(alumnoEncontrado),
+        body: JSON.stringify(datos),
       });
 
       const res = await req.json();
@@ -138,7 +153,8 @@ function DetalleAlumno({
 
       setAlumnoSeleccionado("");
       setModalDetalleAlumno(false);
-      obtenerAlumnos();
+
+      await obtenerAlumnos();
     } catch (error) {
       console.log(error);
     } finally {
@@ -153,8 +169,11 @@ function DetalleAlumno({
 
     if (!confirmar) return;
 
+    setCargando(true);
+
     try {
       const token = localStorage.getItem("token");
+
       const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
         method: "DELETE",
         headers: {
@@ -171,9 +190,12 @@ function DetalleAlumno({
 
       setAlumnoSeleccionado("");
       setModalDetalleAlumno(false);
-      obtenerAlumnos();
+
+      await obtenerAlumnos();
     } catch (error) {
       console.log(error);
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -198,11 +220,13 @@ function DetalleAlumno({
   ).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div className="w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-xl">
-        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-2 sm:p-4">
+      <div className="flex max-h-[95vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white shadow-xl sm:max-h-[90vh] sm:rounded-2xl">
+        {/* ENCABEZADO */}
+
+        <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="min-w-0 pr-4">
+            <h2 className="truncate text-lg font-semibold text-slate-900 sm:text-xl">
               {alumnoEncontrado.nombre} {alumnoEncontrado.apellidoPaterno}{" "}
               {alumnoEncontrado.apellidoMaterno}
             </h2>
@@ -215,19 +239,23 @@ function DetalleAlumno({
           <button
             type="button"
             onClick={() => setModalDetalleAlumno(false)}
-            className="rounded-lg px-2 py-1 text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            className="shrink-0 rounded-lg px-2 py-1 text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
           >
             ×
           </button>
         </div>
 
-        <div className="max-h-[70vh] space-y-6 overflow-y-auto px-6 py-6">
+        {/* CONTENIDO */}
+
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
+          {/* DATOS DEL ALUMNO */}
+
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
               Datos del alumno
             </h3>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               <div className="rounded-lg bg-white p-3">
                 <label className="text-xs text-slate-400">Nombre</label>
 
@@ -236,7 +264,7 @@ function DetalleAlumno({
                   name="nombre"
                   value={alumnoEncontrado.nombre}
                   onChange={handleChange}
-                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
+                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400"
                 />
               </div>
 
@@ -250,7 +278,7 @@ function DetalleAlumno({
                   name="apellidoPaterno"
                   value={alumnoEncontrado.apellidoPaterno}
                   onChange={handleChange}
-                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
+                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400"
                 />
               </div>
 
@@ -264,26 +292,24 @@ function DetalleAlumno({
                   name="apellidoMaterno"
                   value={alumnoEncontrado.apellidoMaterno}
                   onChange={handleChange}
-                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
+                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400"
                 />
               </div>
 
               <div className="rounded-lg bg-white p-3">
-                <label className="rounded-lg bg-white p-3">
-                  <span className="text-xs text-slate-400">Grado</span>
+                <label className="text-xs text-slate-400">Grado</label>
 
-                  <select
-                    name="grado"
-                    value={alumnoEncontrado.grado}
-                    onChange={handleChange}
-                    className="mt-1 w-full cursor-pointer rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
-                  >
-                    <option value="">Selecciona</option>
-                    <option value="1">1°</option>
-                    <option value="2">2°</option>
-                    <option value="3">3°</option>
-                  </select>
-                </label>
+                <select
+                  name="grado"
+                  value={alumnoEncontrado.grado}
+                  onChange={handleChange}
+                  className="mt-1 w-full cursor-pointer rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400"
+                >
+                  <option value="">Selecciona</option>
+                  <option value="1">1°</option>
+                  <option value="2">2°</option>
+                  <option value="3">3°</option>
+                </select>
               </div>
 
               <div className="rounded-lg bg-white p-3">
@@ -294,23 +320,13 @@ function DetalleAlumno({
                   name="grupo"
                   value={alumnoEncontrado.grupo}
                   onChange={handleChange}
-                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
-                />
-              </div>
-
-              <div className="rounded-lg bg-white p-3">
-                <label className="text-xs text-indigo-500">Calificación</label>
-
-                <input
-                  type="text"
-                  name="calificacion"
-                  // value={materia?.calificaciones || "Sin calificación"}
-                  onChange={handleChange}
-                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 outline-none"
+                  className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 uppercase outline-none focus:border-indigo-400"
                 />
               </div>
             </div>
           </section>
+
+          {/* ASISTENCIAS */}
 
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
@@ -318,18 +334,18 @@ function DetalleAlumno({
             </h3>
 
             {asistencias.length > 0 ? (
-              <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-200">
+              <div className="max-h-56 overflow-y-auto rounded-lg border border-slate-200">
                 {asistencias.map((asistencia, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between gap-4 border-b border-slate-100 px-4 py-2.5 last:border-b-0"
+                    className="flex flex-col gap-2 border-b border-slate-100 px-3 py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4"
                   >
                     <span className="text-sm text-slate-600">
                       {asistencia.fecha}
                     </span>
 
                     <select
-                      value={asistencia.fecha === "" ? "" : asistencia.estado}
+                      value={asistencia.estado}
                       onChange={(e) =>
                         cambiarEstadoAsistencia(
                           index,
@@ -337,15 +353,17 @@ function DetalleAlumno({
                             | "presente"
                             | "falta"
                             | "retardo"
-                            | "justificado"
-                            | "",
+                            | "justificado",
                         )
                       }
+                      className="w-full cursor-pointer rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-indigo-400 sm:w-40"
                     >
-                      <option value="">Quitar asistencia</option>
                       <option value="presente">Presente</option>
+
                       <option value="falta">Falta</option>
+
                       <option value="retardo">Retardo</option>
+
                       <option value="justificado">Justificado</option>
                     </select>
                   </div>
@@ -357,6 +375,8 @@ function DetalleAlumno({
               </p>
             )}
           </section>
+
+          {/* RESUMEN */}
 
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
@@ -396,25 +416,30 @@ function DetalleAlumno({
             </div>
           </section>
 
+          {/* ACTIVIDADES */}
+
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
               Actividades
             </h3>
 
             {alumnoEncontrado.actividades?.length > 0 ? (
-              <div className="max-h-60 overflow-y-auto rounded-lg border border-slate-200">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-slate-50">
+              <div className="max-h-72 overflow-auto rounded-lg border border-slate-200">
+                <table className="min-w-[700px] w-full text-sm">
+                  <thead className="sticky top-0 z-10 bg-slate-50">
                     <tr>
                       <th className="px-3 py-2 text-left text-xs text-slate-500">
                         Actividad
                       </th>
+
                       <th className="px-3 py-2 text-left text-xs text-slate-500">
                         Fecha
                       </th>
+
                       <th className="px-3 py-2 text-left text-xs text-slate-500">
                         Estado
                       </th>
+
                       <th className="px-3 py-2 text-left text-xs text-slate-500">
                         Observaciones
                       </th>
@@ -424,6 +449,8 @@ function DetalleAlumno({
                   <tbody>
                     {alumnoEncontrado.actividades.map((actividad, index) => (
                       <tr key={index} className="border-t border-slate-200">
+                        {/* TÍTULO */}
+
                         <td className="px-3 py-2">
                           <input
                             type="text"
@@ -435,16 +462,13 @@ function DetalleAlumno({
                           />
                         </td>
 
-                        <td className="px-3 py-2">
-                          <input
-                            type="date"
-                            value={actividad.fecha}
-                            onChange={(e) =>
-                              cambiarActividad(index, "fecha", e.target.value)
-                            }
-                            className="border-0 bg-transparent p-0 text-sm outline-none"
-                          />
+                        {/* FECHA SOLO SE MUESTRA */}
+
+                        <td className="px-3 py-2 text-sm text-slate-600">
+                          {actividad.fecha}
                         </td>
+
+                        {/* ESTADO */}
 
                         <td className="px-3 py-2">
                           <select
@@ -455,13 +479,18 @@ function DetalleAlumno({
                             className="border-0 bg-transparent p-0 text-sm outline-none"
                           >
                             <option value="Pendiente">Pendiente</option>
+
                             <option value="Entregado">Entregado</option>
+
                             <option value="No entregado">No entregado</option>
+
                             <option value="Entregado tarde">
                               Entregado tarde
                             </option>
                           </select>
                         </td>
+
+                        {/* OBSERVACIONES */}
 
                         <td className="px-3 py-2">
                           <input
@@ -491,21 +520,23 @@ function DetalleAlumno({
           </section>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4">
+        {/* FOOTER */}
+
+        <div className="flex shrink-0 flex-col gap-3 border-t border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <button
             type="button"
             onClick={eliminarAlumno}
-            className="rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+            className="w-full rounded-lg border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 sm:w-auto"
           >
             Eliminar alumno
           </button>
 
-          <div className="flex gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             <button
               type="button"
               disabled={cargando}
-              className="rounded-lg border border-emerald-200 px-4 py-2.5 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
               onClick={guardarCambios}
+              className="w-full rounded-lg border border-emerald-200 px-4 py-2.5 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:w-auto"
             >
               Guardar cambios
             </button>
@@ -513,13 +544,14 @@ function DetalleAlumno({
             <button
               type="button"
               onClick={() => setModalDetalleAlumno(false)}
-              className="rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
+              className="w-full rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 sm:w-auto"
             >
               Cerrar
             </button>
           </div>
         </div>
       </div>
+
       {cargando && <ModalCargando />}
     </div>
   );

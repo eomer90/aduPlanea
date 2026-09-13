@@ -11,7 +11,7 @@ export type TypeResultadoAlumno = {
   manifestaciones: TypeManifestacion[];
 };
 
-export type TypeEvaluacion = {
+export type TypeNuevaEvaluacion = {
   nombre: string;
   fecha: string;
   instrumento: string;
@@ -24,7 +24,7 @@ export type TypeEvaluacion = {
   resultados: TypeResultadoAlumno[];
 };
 
-const evaluacionInicial: TypeEvaluacion = {
+const evaluacionInicial: TypeNuevaEvaluacion = {
   nombre: "",
   fecha: "",
   materia: "",
