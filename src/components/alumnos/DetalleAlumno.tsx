@@ -59,7 +59,9 @@ function DetalleAlumno({
   }, [alumnoSeleccionado]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
 
@@ -131,6 +133,7 @@ function DetalleAlumno({
         apellidoMaterno: alumnoEncontrado.apellidoMaterno,
         grado: alumnoEncontrado.grado,
         grupo: alumnoEncontrado.grupo,
+        observacionesGenerales: alumnoEncontrado.observacionesGenerales,
         materias: alumnoEncontrado.materias,
         actividades: alumnoEncontrado.actividades || [],
       };
@@ -332,12 +335,7 @@ function DetalleAlumno({
                 <textarea
                   name="observacionesGenerales"
                   value={alumnoEncontrado.observacionesGenerales}
-                  onChange={(e) =>
-                    setAlumnoEncontrado({
-                      ...alumnoEncontrado,
-                      observacionesGenerales: e.target.value,
-                    })
-                  }
+                  onChange={handleChange}
                   placeholder="Escribe información importante que debas tomar en cuenta..."
                   rows={3}
                   className="mt-1 w-full resize-none rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-indigo-400"
