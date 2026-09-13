@@ -62,7 +62,7 @@ function SeccionAlumnos({
   const [filtroEvaluacion, setFiltroEvaluacion] = useState<string>("");
 
   const [vistaAlumnos, setVistaAlumnos] = useState<
-    "asistencia" | "trabajos" | "evaluaciones"
+    "asistencia" | "trabajos" | "evaluaciones" | "observaciones"
   >("asistencia");
 
   const [busquedaAlumno, setBusquedaAlumno] = useState<string>("");
@@ -79,6 +79,16 @@ function SeccionAlumnos({
       return nombreCompleto.includes(busquedaAlumno.toLowerCase());
     })
     .sort((a, b) => a.apellidoPaterno.localeCompare(b.apellidoPaterno));
+
+  /* =========================================================
+     ALUMNOS A SEGUIR / CON OBSERVACIONES
+  ========================================================= */
+
+  const alumnosConObservaciones = alumnosOrdenados.filter(
+    (alumno) =>
+      alumno.observacionesGenerales &&
+      alumno.observacionesGenerales.trim() !== "",
+  );
 
   /* =========================================================
      RANGO DE ASISTENCIA
@@ -252,6 +262,7 @@ function SeccionAlumnos({
       ).length,
     0,
   );
+
   /* =========================================================
      EVALUACIONES DISPONIBLES
   ========================================================= */
@@ -523,6 +534,7 @@ function SeccionAlumnos({
             type="button"
             onClick={() => {
               setVistaAlumnos("asistencia");
+
               document.getElementById("lista-alumnos")?.scrollIntoView({
                 behavior: "smooth",
               });
@@ -616,6 +628,7 @@ function SeccionAlumnos({
             type="button"
             onClick={() => {
               setVistaAlumnos("trabajos");
+
               document.getElementById("lista-alumnos")?.scrollIntoView({
                 behavior: "smooth",
               });
@@ -769,12 +782,61 @@ function SeccionAlumnos({
       </section>
 
       {/* =====================================================
+          ALUMNOS A SEGUIR
+      ===================================================== */}
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-slate-900">Alumnos a seguir</h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Alumnos con observaciones generales que requieren seguimiento.
+            </p>
+          </div>
+
+          <span className="shrink-0 rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">
+            {alumnosConObservaciones.length}
+          </span>
+        </div>
+
+        {alumnosConObservaciones.length === 0 ? (
+          <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+            No hay alumnos con observaciones generales.
+          </div>
+        ) : (
+          <div className="mt-4">
+            <p className="text-sm text-slate-600">
+              Hay {alumnosConObservaciones.length}{" "}
+              {alumnosConObservaciones.length === 1 ? "alumno" : "alumnos"} con
+              información importante para considerar.
+            </p>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => {
+            setVistaAlumnos("observaciones");
+
+            document.getElementById("lista-alumnos")?.scrollIntoView({
+              behavior: "smooth",
+            });
+          }}
+          disabled={alumnosConObservaciones.length === 0}
+          className="mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:cursor-not-allowed disabled:text-slate-300"
+        >
+          Mostrar →
+        </button>
+      </section>
+
+      {/* =====================================================
           TABLA DE ALUMNOS
       ===================================================== */}
 
       <section
         id="lista-alumnos"
-        className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+        className="scroll-mt-20 rounded-2xl border border-slate-200 bg-white shadow-sm"
       >
         <div className="border-b border-slate-100 p-4 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -790,6 +852,9 @@ function SeccionAlumnos({
 
                 {vistaAlumnos === "evaluaciones" &&
                   "Consulta los resultados de la evaluación seleccionada."}
+
+                {vistaAlumnos === "observaciones" &&
+                  "Consulta los alumnos que requieren seguimiento."}
               </p>
             </div>
 
@@ -802,6 +867,60 @@ function SeccionAlumnos({
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
               />
             </div>
+          </div>
+
+          {/* =================================================
+              NAVEGACIÓN DE VISTAS
+          ================================================= */}
+
+          <div className="mt-5 flex gap-5 overflow-x-auto border-b border-slate-100">
+            <button
+              type="button"
+              onClick={() => setVistaAlumnos("asistencia")}
+              className={`whitespace-nowrap border-b-2 pb-3 text-sm font-medium ${
+                vistaAlumnos === "asistencia"
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Asistencia
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setVistaAlumnos("trabajos")}
+              className={`whitespace-nowrap border-b-2 pb-3 text-sm font-medium ${
+                vistaAlumnos === "trabajos"
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Trabajos
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setVistaAlumnos("evaluaciones")}
+              className={`whitespace-nowrap border-b-2 pb-3 text-sm font-medium ${
+                vistaAlumnos === "evaluaciones"
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Evaluaciones
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setVistaAlumnos("observaciones")}
+              className={`whitespace-nowrap border-b-2 pb-3 text-sm font-medium ${
+                vistaAlumnos === "observaciones"
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Alumnos a seguir
+            </button>
           </div>
         </div>
 
@@ -860,131 +979,189 @@ function SeccionAlumnos({
                     <th className="px-4 py-3 font-semibold">Observaciones</th>
                   </>
                 )}
+
+                {vistaAlumnos === "observaciones" && (
+                  <th className="px-4 py-3 font-semibold">
+                    Observaciones generales
+                  </th>
+                )}
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {alumnosOrdenados.map((alumno) => {
-                const asistencia = obtenerEstadoAsistencia(alumno);
+              {vistaAlumnos === "observaciones" ? (
+                <>
+                  {alumnosConObservaciones.map((alumno, index) => (
+                    <tr
+                      key={alumno._id}
+                      className="transition hover:bg-slate-50"
+                    >
+                      <td className="w-12 px-3 py-4 text-center text-sm text-slate-400">
+                        {index + 1}
+                      </td>
 
-                const actividades = obtenerEstadoActividades(alumno);
-
-                const resultado = obtenerResultadoEvaluacion(alumno._id);
-
-                return (
-                  <tr key={alumno._id} className="transition hover:bg-slate-50">
-                    <td className="w-12 px-3 py-4 text-center text-sm text-slate-400">
-                      {alumnosOrdenados.indexOf(alumno) + 1}
-                    </td>
-                    {/* ALUMNO */}
-
-                    <td className="px-4 py-4 sm:px-6">
-                      <button
-                        type="button"
-                        onClick={() => verDetalles(alumno._id)}
-                        className="group text-left"
-                      >
-                        <span className="font-medium text-slate-800 group-hover:text-indigo-600">
-                          {alumno.nombre} {alumno.apellidoPaterno}{" "}
-                          {alumno.apellidoMaterno}
-                          <span className="ml-1 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-indigo-400">
-                            →
+                      <td className="px-4 py-4 sm:px-6">
+                        <button
+                          type="button"
+                          onClick={() => verDetalles(alumno._id)}
+                          className="group text-left"
+                        >
+                          <span className="font-medium text-slate-800 group-hover:text-indigo-600">
+                            {alumno.nombre} {alumno.apellidoPaterno}{" "}
+                            {alumno.apellidoMaterno}
+                            <span className="ml-1 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-indigo-400">
+                              →
+                            </span>
                           </span>
-                        </span>
-                      </button>
-                    </td>
+                        </button>
+                      </td>
 
-                    {/* ASISTENCIA */}
+                      <td className="max-w-xl px-4 py-4 text-sm leading-6 text-slate-600">
+                        {alumno.observacionesGenerales}
+                      </td>
+                    </tr>
+                  ))}
 
-                    {vistaAlumnos === "asistencia" && (
-                      <>
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-emerald-600">
-                          {asistencia.presente}
+                  {alumnosConObservaciones.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="px-6 py-10 text-center text-sm text-slate-500"
+                      >
+                        No se encontraron alumnos con observaciones generales.
+                      </td>
+                    </tr>
+                  )}
+                </>
+              ) : (
+                <>
+                  {alumnosOrdenados.map((alumno) => {
+                    const asistencia = obtenerEstadoAsistencia(alumno);
+
+                    const actividades = obtenerEstadoActividades(alumno);
+
+                    const resultado = obtenerResultadoEvaluacion(alumno._id);
+
+                    return (
+                      <tr
+                        key={alumno._id}
+                        className="transition hover:bg-slate-50"
+                      >
+                        <td className="w-12 px-3 py-4 text-center text-sm text-slate-400">
+                          {alumnosOrdenados.indexOf(alumno) + 1}
                         </td>
 
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-red-600">
-                          {asistencia.falta}
-                        </td>
+                        {/* ALUMNO */}
 
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-amber-600">
-                          {asistencia.retardo}
-                        </td>
-
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-blue-600">
-                          {asistencia.justificado}
-                        </td>
-                      </>
-                    )}
-
-                    {/* ACTIVIDADES */}
-
-                    {vistaAlumnos === "trabajos" && (
-                      <>
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-emerald-600">
-                          {actividades.entregado}
-                        </td>
-
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-amber-600">
-                          {actividades.pendiente}
-                        </td>
-
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-red-600">
-                          {actividades.noEntregado}
-                        </td>
-
-                        <td className="w-28 px-4 py-4 text-center text-sm font-medium text-orange-600">
-                          {actividades.entregadoTarde}
-                        </td>
-                      </>
-                    )}
-
-                    {/* EVALUACIÓN */}
-
-                    {vistaAlumnos === "evaluaciones" && (
-                      <>
-                        <td className="px-4 py-4 text-sm">
-                          {!evaluacionSeleccionada ? (
-                            <span className="text-slate-400">
-                              Selecciona una evaluación
+                        <td className="px-4 py-4 sm:px-6">
+                          <button
+                            type="button"
+                            onClick={() => verDetalles(alumno._id)}
+                            className="group text-left"
+                          >
+                            <span className="font-medium text-slate-800 group-hover:text-indigo-600">
+                              {alumno.nombre} {alumno.apellidoPaterno}{" "}
+                              {alumno.apellidoMaterno}
+                              <span className="ml-1 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-indigo-400">
+                                →
+                              </span>
                             </span>
-                          ) : !resultado ? (
-                            <span className="text-slate-400">
-                              Sin resultado
-                            </span>
-                          ) : evaluacionSeleccionada.cuantitativa ? (
-                            <span className="font-semibold text-indigo-600">
-                              {resultado.calificacion || "Sin calificación"}
-                            </span>
-                          ) : evaluacionSeleccionada.cualitativa ? (
-                            <span className="font-medium text-slate-700">
-                              {resultado.nivelDesempeno ||
-                                "Sin nivel de desempeño"}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400">
-                              Sin resultado
-                            </span>
-                          )}
+                          </button>
                         </td>
 
-                        <td className="max-w-md px-4 py-4 text-sm text-slate-600">
-                          {resultado?.observaciones || "Sin observaciones"}
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                );
-              })}
+                        {/* ASISTENCIA */}
 
-              {alumnosOrdenados.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={vistaAlumnos === "evaluaciones" ? 3 : 5}
-                    className="px-6 py-10 text-center text-sm text-slate-500"
-                  >
-                    No se encontraron alumnos.
-                  </td>
-                </tr>
+                        {vistaAlumnos === "asistencia" && (
+                          <>
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-emerald-600">
+                              {asistencia.presente}
+                            </td>
+
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-red-600">
+                              {asistencia.falta}
+                            </td>
+
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-amber-600">
+                              {asistencia.retardo}
+                            </td>
+
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-blue-600">
+                              {asistencia.justificado}
+                            </td>
+                          </>
+                        )}
+
+                        {/* ACTIVIDADES */}
+
+                        {vistaAlumnos === "trabajos" && (
+                          <>
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-emerald-600">
+                              {actividades.entregado}
+                            </td>
+
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-amber-600">
+                              {actividades.pendiente}
+                            </td>
+
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-red-600">
+                              {actividades.noEntregado}
+                            </td>
+
+                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-orange-600">
+                              {actividades.entregadoTarde}
+                            </td>
+                          </>
+                        )}
+
+                        {/* EVALUACIÓN */}
+
+                        {vistaAlumnos === "evaluaciones" && (
+                          <>
+                            <td className="px-4 py-4 text-sm">
+                              {!evaluacionSeleccionada ? (
+                                <span className="text-slate-400">
+                                  Selecciona una evaluación
+                                </span>
+                              ) : !resultado ? (
+                                <span className="text-slate-400">
+                                  Sin resultado
+                                </span>
+                              ) : evaluacionSeleccionada.cuantitativa ? (
+                                <span className="font-semibold text-indigo-600">
+                                  {resultado.calificacion || "Sin calificación"}
+                                </span>
+                              ) : evaluacionSeleccionada.cualitativa ? (
+                                <span className="font-medium text-slate-700">
+                                  {resultado.nivelDesempeno ||
+                                    "Sin nivel de desempeño"}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">
+                                  Sin resultado
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="max-w-md px-4 py-4 text-sm text-slate-600">
+                              {resultado?.observaciones || "Sin observaciones"}
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    );
+                  })}
+
+                  {alumnosOrdenados.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={vistaAlumnos === "evaluaciones" ? 3 : 5}
+                        className="px-6 py-10 text-center text-sm text-slate-500"
+                      >
+                        No se encontraron alumnos.
+                      </td>
+                    </tr>
+                  )}
+                </>
               )}
             </tbody>
           </table>
@@ -1005,7 +1182,11 @@ function SeccionAlumnos({
         />
       )}
 
-      {/* {modalImportar && <ModalImportar setModalImportar={setModalImportar} />} */}
+      {/* {modalImportar && (
+        <ModalImportar
+          setModalImportar={setModalImportar}
+        />
+      )} */}
     </section>
   );
 }

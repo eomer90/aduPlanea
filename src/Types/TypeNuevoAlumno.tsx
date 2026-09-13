@@ -24,6 +24,7 @@ export interface TypeNuevoAlumno {
   apellidoMaterno: string;
   grado: string;
   grupo: string;
+  observacionesGenerales: string;
   materias: TypeMaterias[];
   actividades: TypeActividad[];
 }
@@ -34,6 +35,7 @@ const estadoInicial: TypeNuevoAlumno = {
   apellidoMaterno: "",
   grado: "",
   grupo: "",
+  observacionesGenerales: "",
   materias: [],
   actividades: [],
 };

@@ -32,7 +32,9 @@ function FormAlumnos({
 }: FormProp) {
   const [cargando, setCargando] = useState<boolean>(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
 
     setFormAlumno({
@@ -151,6 +153,25 @@ function FormAlumnos({
               className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
+
+          <div>
+            <label
+              htmlFor="observacionesGenerales"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Observaciones generales
+            </label>
+
+            <textarea
+              id="observacionesGenerales"
+              name="observacionesGenerales"
+              value={formAlumno.observacionesGenerales}
+              onChange={handleChange}
+              rows={4}
+              placeholder="Escribe información importante sobre el alumno..."
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            />
+          </div>
 
           <button
             type="button"
