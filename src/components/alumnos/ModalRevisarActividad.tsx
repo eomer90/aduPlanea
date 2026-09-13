@@ -11,13 +11,13 @@ type TypeActividad = {
   claseId: string;
   titulo: string;
   fecha: string;
-  estado: "Pendiente" | "Entregado" | "No entregado" | "Entregado tarde";
+  estado: "Pendiente" | "Entregado" | "No entregado";
   observaciones: string;
 };
 
 type TypeActividadAlumno = {
   alumnoId: string;
-  estado: "Pendiente" | "Entregado" | "No entregado" | "Entregado tarde";
+  estado: "Pendiente" | "Entregado" | "No entregado";
   observaciones: string;
 };
 
@@ -281,10 +281,6 @@ function ModalRevisarActividad({
                               <option value="Entregado">Entregado</option>
 
                               <option value="No entregado">No entregado</option>
-
-                              <option value="Entregado tarde">
-                                Entregado tarde
-                              </option>
                             </select>
                           </td>
 

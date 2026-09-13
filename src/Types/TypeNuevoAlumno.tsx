@@ -14,7 +14,7 @@ export type TypeActividad = {
   claseId: string;
   titulo: string;
   fecha: string;
-  estado: "Pendiente" | "Entregado" | "No entregado" | "Entregado tarde";
+  estado: "Pendiente" | "Entregado" | "No entregado";
   observaciones: string;
 };
 

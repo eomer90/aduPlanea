@@ -8,7 +8,6 @@ import type { TypeNuevaEvaluacion } from "../../Types/TypeNuevaEvaluacion";
 import nuevoAlumno from "../../Types/TypeNuevoAlumno";
 
 import FormAlumnos from "./FormAlumnos";
-
 import DetalleAlumno from "./DetalleAlumno";
 
 export type TypeClase = TypeClaseNueva & {
@@ -51,8 +50,6 @@ function SeccionAlumnos({
 
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<string>("");
 
-  // const [modalImportar, setModalImportar] = useState<boolean>(false);
-
   const [filtroAsistencia, setFiltroAsistencia] = useState<
     "dia" | "semana" | "mes"
   >("semana");
@@ -81,7 +78,7 @@ function SeccionAlumnos({
     .sort((a, b) => a.apellidoPaterno.localeCompare(b.apellidoPaterno));
 
   /* =========================================================
-     ALUMNOS A SEGUIR / CON OBSERVACIONES
+     ALUMNOS CON OBSERVACIONES
   ========================================================= */
 
   const alumnosConObservaciones = alumnosOrdenados.filter(
@@ -254,15 +251,6 @@ function SeccionAlumnos({
     0,
   );
 
-  const totalEntregadosTarde = alumnos.reduce(
-    (total, alumno) =>
-      total +
-      actividadesDelFiltro(alumno).filter(
-        (actividad) => actividad.estado === "Entregado tarde",
-      ).length,
-    0,
-  );
-
   /* =========================================================
      EVALUACIONES DISPONIBLES
   ========================================================= */
@@ -380,9 +368,6 @@ function SeccionAlumnos({
 
       noEntregado: actividades.filter((a) => a.estado === "No entregado")
         .length,
-
-      entregadoTarde: actividades.filter((a) => a.estado === "Entregado tarde")
-        .length,
     };
   };
 
@@ -437,14 +422,6 @@ function SeccionAlumnos({
                 {mostrarFormAlumnos ? "Cancelar" : "Agregar alumno"}
               </button>
             )}
-
-            {/* <button
-              type="button"
-              onClick={() => setModalImportar(true)}
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              Importar
-            </button> */}
           </div>
         </div>
 
@@ -489,9 +466,7 @@ function SeccionAlumnos({
               className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-600 outline-none focus:border-indigo-400"
             >
               <option value="dia">Día</option>
-
               <option value="semana">Semana</option>
-
               <option value="mes">Mes</option>
             </select>
           </div>
@@ -590,7 +565,7 @@ function SeccionAlumnos({
             </select>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-3 gap-2">
             <div className="rounded-lg bg-emerald-50 p-3">
               <p className="text-xs text-emerald-600">Entregados</p>
 
@@ -612,14 +587,6 @@ function SeccionAlumnos({
 
               <p className="mt-1 text-lg font-bold text-red-700">
                 {totalNoEntregados}
-              </p>
-            </div>
-
-            <div className="rounded-lg bg-orange-50 p-3">
-              <p className="text-xs text-orange-600">Entrega tarde</p>
-
-              <p className="mt-1 text-lg font-bold text-orange-700">
-                {totalEntregadosTarde}
               </p>
             </div>
           </div>
@@ -770,10 +737,11 @@ function SeccionAlumnos({
                 type="button"
                 disabled={!filtroEvaluacion}
                 onClick={() => {
-                  (setVistaAlumnos("evaluaciones"),
-                    document.getElementById("lista-alumnos")?.scrollIntoView({
-                      behavior: "smooth",
-                    }));
+                  setVistaAlumnos("evaluaciones");
+
+                  document.getElementById("lista-alumnos")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
                 }}
                 className="mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:cursor-not-allowed disabled:text-slate-300"
               >
@@ -785,7 +753,7 @@ function SeccionAlumnos({
       </section>
 
       {/* =====================================================
-          ALUMNOS A SEGUIR
+          OBSERVACIONES IMPORTANTES
       ===================================================== */}
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -971,10 +939,6 @@ function SeccionAlumnos({
                     <th className="w-28 px-4 py-3 text-center font-semibold">
                       No entregado
                     </th>
-
-                    <th className="w-28 px-4 py-3 text-center font-semibold">
-                      Entregado tarde
-                    </th>
                   </>
                 )}
 
@@ -1112,10 +1076,6 @@ function SeccionAlumnos({
                             <td className="w-28 px-4 py-4 text-center text-sm font-medium text-red-600">
                               {actividades.noEntregado}
                             </td>
-
-                            <td className="w-28 px-4 py-4 text-center text-sm font-medium text-orange-600">
-                              {actividades.entregadoTarde}
-                            </td>
                           </>
                         )}
 
@@ -1160,7 +1120,13 @@ function SeccionAlumnos({
                   {alumnosOrdenados.length === 0 && (
                     <tr>
                       <td
-                        colSpan={vistaAlumnos === "evaluaciones" ? 3 : 5}
+                        colSpan={
+                          vistaAlumnos === "evaluaciones"
+                            ? 4
+                            : vistaAlumnos === "asistencia"
+                              ? 6
+                              : 5
+                        }
                         className="px-6 py-10 text-center text-sm text-slate-500"
                       >
                         No se encontraron alumnos.
@@ -1187,12 +1153,6 @@ function SeccionAlumnos({
           claseSeleccionada={claseSeleccionada}
         />
       )}
-
-      {/* {modalImportar && (
-        <ModalImportar
-          setModalImportar={setModalImportar}
-        />
-      )} */}
     </section>
   );
 }

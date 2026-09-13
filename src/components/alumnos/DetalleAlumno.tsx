@@ -469,15 +469,8 @@ function DetalleAlumno({
                       <tr key={index} className="border-t border-slate-200">
                         {/* TÍTULO */}
 
-                        <td className="px-3 py-2">
-                          <input
-                            type="text"
-                            value={actividad.titulo}
-                            onChange={(e) =>
-                              cambiarActividad(index, "titulo", e.target.value)
-                            }
-                            className="w-full border-0 bg-transparent p-0 text-sm outline-none"
-                          />
+                        <td className="px-3 py-2 text-sm text-slate-700">
+                          {actividad.titulo}
                         </td>
 
                         {/* FECHA SOLO SE MUESTRA */}
@@ -501,10 +494,6 @@ function DetalleAlumno({
                             <option value="Entregado">Entregado</option>
 
                             <option value="No entregado">No entregado</option>
-
-                            <option value="Entregado tarde">
-                              Entregado tarde
-                            </option>
                           </select>
                         </td>
 

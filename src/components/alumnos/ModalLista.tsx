@@ -1,11 +1,13 @@
 import { useState } from "react";
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+// import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+// import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 import ModalCargando from "../ModalCargando";
 
-type TypeAlumnos = TypeNuevoAlumno & {
-  _id: string;
-};
+// type TypeAlumnos = TypeNuevoAlumno & {
+//   _id: string;
+// };
 
 type TypeEstadoAlumno = {
   id: string;
@@ -21,10 +23,10 @@ const SERVER = import.meta.env.VITE_API_URL;
 const ROUTE2 = "/alumnos";
 
 interface AlumnosProp {
-  alumnosOrdenados: TypeAlumnos[];
+  alumnosOrdenados: TypeAlumnoMongo[];
   setModalPasarLista: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
-  claseSeleccionada: TypeClaseNueva;
+  claseSeleccionada: TypeClaseMongo;
 }
 
 function ModalLista({
@@ -47,7 +49,7 @@ function ModalLista({
 
     const buscarAlumnos = alumnosOrdenados.filter((a) => {
       const materia = a.materias.find(
-        (materia) => materia.nombre === claseSeleccionada.materia,
+        (materia) => String(materia.claseId) === String(claseSeleccionada._id),
       );
 
       return materia?.asistencias.some((asis) => asis.fecha === nuevaFecha);
@@ -148,14 +150,15 @@ function ModalLista({
       const observacion = observaciones.find((o) => o.id === alumno._id);
 
       return {
-        id: alumno._id,
-        estado: estado?.estado,
+        alumnoId: alumno._id,
+        estado: estado?.estado || "presente",
         observaciones: observacion?.observaciones || "",
       };
     });
 
     const datos = {
       fecha,
+      claseId: claseSeleccionada._id,
       materia: claseSeleccionada.materia,
       asistencia,
     };
