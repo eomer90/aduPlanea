@@ -323,6 +323,26 @@ function DetalleAlumno({
                   className="mt-1 w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 uppercase outline-none focus:border-indigo-400"
                 />
               </div>
+
+              <div className="rounded-lg bg-white p-3 sm:col-span-2 md:col-span-3">
+                <label className="text-xs text-slate-400">
+                  Observaciones generales
+                </label>
+
+                <textarea
+                  name="observacionesGenerales"
+                  value={alumnoEncontrado.observacionesGenerales}
+                  onChange={(e) =>
+                    setAlumnoEncontrado({
+                      ...alumnoEncontrado,
+                      observacionesGenerales: e.target.value,
+                    })
+                  }
+                  placeholder="Escribe información importante que debas tomar en cuenta..."
+                  rows={3}
+                  className="mt-1 w-full resize-none rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-indigo-400"
+                />
+              </div>
             </div>
           </section>
 
