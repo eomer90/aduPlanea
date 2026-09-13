@@ -230,6 +230,26 @@ function ModalVerEvaluacion({
                 {evaluacion.instrumento}
               </p>
             </div>
+
+            {/* OBSERVACIONES GENERALES DEL GRUPO */}
+            <div className="sm:col-span-3">
+              <p className="text-xs text-slate-500">
+                Observaciones generales del grupo
+              </p>
+
+              <textarea
+                value={evaluacion.observacionesGenerales ?? ""}
+                onChange={(e) =>
+                  setEvaluacion({
+                    ...evaluacion,
+                    observacionesGenerales: e.target.value,
+                  })
+                }
+                rows={4}
+                placeholder="Escribe observaciones generales sobre el grupo..."
+                className="mt-1 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              />
+            </div>
           </div>
 
           {/* ========================= */}

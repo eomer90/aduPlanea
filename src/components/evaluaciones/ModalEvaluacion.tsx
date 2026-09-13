@@ -296,6 +296,7 @@ function FormEvaluacion({
           {/* DATOS DE LA EVALUACIÓN */}
 
           <div className="grid gap-4 md:grid-cols-3">
+            {/* NOMBRE */}
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Nombre</span>
 
@@ -309,6 +310,7 @@ function FormEvaluacion({
               />
             </label>
 
+            {/* FECHA */}
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Fecha</span>
 
@@ -321,6 +323,7 @@ function FormEvaluacion({
               />
             </label>
 
+            {/* INSTRUMENTO */}
             <label className="block">
               <span className="text-sm font-medium text-slate-700">
                 Instrumento
@@ -351,6 +354,22 @@ function FormEvaluacion({
                   return null;
                 })}
               </select>
+            </label>
+
+            {/* OBSERVACIONES GENERALES DEL GRUPO */}
+            <label className="block md:col-span-3">
+              <span className="text-sm font-medium text-slate-700">
+                Observaciones generales del grupo
+              </span>
+
+              <textarea
+                name="observacionesGenerales"
+                value={formEvaluacion.observacionesGenerales}
+                onChange={handleChange}
+                rows={4}
+                placeholder="Escribe observaciones generales sobre el grupo..."
+                className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              />
             </label>
           </div>
 

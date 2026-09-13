@@ -1,17 +1,11 @@
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
-import nuevoAlumno from "../../Types/TypeNuevoAlumno";
 import { useState } from "react";
+import nuevoAlumno from "../../Types/TypeNuevoAlumno";
 import ModalCargando from "../ModalCargando";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 
 const SERVER = import.meta.env.VITE_API_URL;
 const ROUTE = "/alumnos";
-
-type TypeClase = TypeClaseNueva & {
-  escuelaId: string;
-  usuarioId: string;
-  _id: string;
-};
 
 interface FormProp {
   setMostrarFormALumnos: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,7 +13,7 @@ interface FormProp {
   setFormAlumno: React.Dispatch<React.SetStateAction<TypeNuevoAlumno>>;
   setMostrarBotonAlumnos: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
-  claseSeleccionada: TypeClase;
+  claseSeleccionada: TypeClaseMongo;
 }
 
 function FormAlumnos({
@@ -50,10 +44,9 @@ function FormAlumnos({
       nombre: formAlumno.nombre,
       apellidoPaterno: formAlumno.apellidoPaterno,
       apellidoMaterno: formAlumno.apellidoMaterno,
-
-      // El grado y grupo salen automáticamente de la clase
       grado: claseSeleccionada.grado,
       grupo: claseSeleccionada.grupo,
+      observacionesGenerales: formAlumno.observacionesGenerales,
 
       materias: [
         {
@@ -105,8 +98,9 @@ function FormAlumnos({
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-          <label className="flex-1">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* NOMBRE */}
+          <label className="min-w-0">
             <span className="text-sm font-medium text-slate-700">
               Nombre(s)
             </span>
@@ -122,7 +116,8 @@ function FormAlumnos({
             />
           </label>
 
-          <label className="flex-1">
+          {/* APELLIDO PATERNO */}
+          <label className="min-w-0">
             <span className="text-sm font-medium text-slate-700">
               Apellido paterno
             </span>
@@ -138,7 +133,8 @@ function FormAlumnos({
             />
           </label>
 
-          <label className="flex-1">
+          {/* APELLIDO MATERNO */}
+          <label className="min-w-0">
             <span className="text-sm font-medium text-slate-700">
               Apellido materno
             </span>
@@ -154,13 +150,11 @@ function FormAlumnos({
             />
           </label>
 
-          <div>
-            <label
-              htmlFor="observacionesGenerales"
-              className="block text-sm font-medium text-slate-700"
-            >
+          {/* OBSERVACIONES GENERALES */}
+          <label className="min-w-0 sm:col-span-2 lg:col-span-2">
+            <span className="text-sm font-medium text-slate-700">
               Observaciones generales
-            </label>
+            </span>
 
             <textarea
               id="observacionesGenerales"
@@ -169,33 +163,43 @@ function FormAlumnos({
               onChange={handleChange}
               rows={4}
               placeholder="Escribe información importante sobre el alumno..."
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="mt-2 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
-          </div>
+          </label>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMostrarFormALumnos(false);
-              setMostrarBotonAlumnos(true);
-            }}
-            className="flex h-10 w-full shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 sm:mb-1 sm:w-10"
-          >
-            ✕
-          </button>
+          {/* BOTÓN CERRAR */}
+          <div className="flex items-end justify-start lg:justify-center">
+            <button
+              type="button"
+              onClick={() => {
+                setMostrarFormALumnos(false);
+                setMostrarBotonAlumnos(true);
+              }}
+              aria-label="Cerrar formulario"
+              className="flex h-10 w-full items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 sm:w-10"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
+        {/* 
         <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
-          <p className="text-sm text-slate-600">El alumno se agregará a:</p>
+          <p className="text-sm text-slate-600">
+            El alumno se agregará a:
+          </p>
 
           <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium text-indigo-700">
             <span>{claseSeleccionada.materia}</span>
+
             <span>
               {claseSeleccionada.grado}° {claseSeleccionada.grupo}
             </span>
           </div>
         </div>
+        */}
 
+        {/* ACCIONES */}
         <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
           <button
             type="submit"

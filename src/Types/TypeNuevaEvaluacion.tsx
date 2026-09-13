@@ -17,6 +17,7 @@ export type TypeNuevaEvaluacion = {
   instrumento: string;
   cuantitativa: boolean;
   cualitativa: boolean;
+  observacionesGenerales: string;
   materia: string;
   claseId: string;
   contenidoId: string;
@@ -27,11 +28,12 @@ export type TypeNuevaEvaluacion = {
 const evaluacionInicial: TypeNuevaEvaluacion = {
   nombre: "",
   fecha: "",
-  materia: "",
-  claseId: "",
   instrumento: "",
   cuantitativa: false,
   cualitativa: false,
+  observacionesGenerales: "",
+  materia: "",
+  claseId: "",
   contenidoId: "",
   pdaIds: [],
   resultados: [],
