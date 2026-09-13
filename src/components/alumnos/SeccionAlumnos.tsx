@@ -649,16 +649,19 @@ function SeccionAlumnos({
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="mb-4">
-            <h2 className="font-semibold text-slate-900">Atención requerida</h2>
+            <h2 className="font-semibold text-slate-900">
+              Alumnos con dificultades
+            </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Alumnos que requieren seguimiento.
+              Alumnos que presentan situaciones de asistencia o entrega de
+              actividades que requieren seguimiento.
             </p>
           </div>
 
           {alumnosAtencion.length === 0 ? (
             <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
-              No hay alumnos que requieran atención en este momento.
+              No hay alumnos que requieran seguimiento en este momento.
             </div>
           ) : (
             <div className="space-y-2">
@@ -788,10 +791,13 @@ function SeccionAlumnos({
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="font-semibold text-slate-900">Alumnos a seguir</h2>
+            <h2 className="font-semibold text-slate-900">
+              Observaciones importantes
+            </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Alumnos con observaciones generales que requieren seguimiento.
+              Información que debe tomarse en cuenta para el seguimiento del
+              alumno.
             </p>
           </div>
 
@@ -895,7 +901,7 @@ function SeccionAlumnos({
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
-              Trabajos
+              Actividades
             </button>
 
             <button
@@ -919,7 +925,7 @@ function SeccionAlumnos({
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
-              Alumnos a seguir
+              Alumnos con observaciones
             </button>
           </div>
         </div>

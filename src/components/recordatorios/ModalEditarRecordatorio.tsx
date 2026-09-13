@@ -33,7 +33,9 @@ function ModalEditarRecordatorio({
 
   const [eliminando, setEliminando] = useState<boolean>(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
 
     setRecordatorio({
@@ -199,13 +201,13 @@ function ModalEditarRecordatorio({
               Descripción
             </label>
 
-            <input
-              type="text"
+            <textarea
               name="descripcion"
               value={recordatorio.descripcion}
               onChange={handleChange}
               placeholder="Escribe los detalles del recordatorio..."
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-indigo-500"
+              rows={4}
+              className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-indigo-500"
             />
           </div>
         </div>
