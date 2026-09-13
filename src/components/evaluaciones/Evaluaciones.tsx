@@ -1,40 +1,15 @@
 import { useState } from "react";
 import ModalEvaluacion from "./ModalEvaluacion";
 import ModalEditarEvaluacion from "./ModalEditarEvaluacion";
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
-import type { TypeEvaluacion } from "../../Types/TypeNuevaEvaluacion";
-import evaluacionInicial from "../../Types/TypeNuevaEvaluacion";
-
-type TypeAlumnos = TypeNuevoAlumno & {
-  _id: string;
-};
-
-type TypeClase = TypeClaseNueva & {
-  escuelaId: string;
-  usuarioId: string;
-  _id: string;
-};
-
-type TypeEvaluacionesSeleccionadas = TypeEvaluacion & {
-  claseId: string;
-  escuelaId: string;
-  usuarioId: string;
-  _id: string;
-};
-
-const nuevaEvaluacion: TypeEvaluacionesSeleccionadas = {
-  ...evaluacionInicial,
-  claseId: "",
-  escuelaId: "",
-  usuarioId: "",
-  _id: "",
-};
+import inicialEvaluacionMongo from "../../Types/TypeEvaluacionMongo";
+import type { TypeEvaluacionMongo } from "../../Types/TypeEvaluacionMongo";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
 
 interface Prop {
-  alumnos: TypeAlumnos[];
-  claseSeleccionada: TypeClase;
-  evaluaciones: TypeEvaluacionesSeleccionadas[];
+  alumnos: TypeAlumnoMongo[];
+  claseSeleccionada: TypeClaseMongo;
+  evaluaciones: TypeEvaluacionMongo[];
   obtenerEvaluaciones: () => Promise<void>;
 }
 
@@ -48,7 +23,7 @@ function Evaluaciones({
     useState<boolean>(false);
   const [verEvaluacion, setVerEvaluacion] = useState<boolean>(false);
   const [evaluacionSeleccionada, setEvaluacionSeleccionada] =
-    useState<TypeEvaluacionesSeleccionadas>(nuevaEvaluacion);
+    useState<TypeEvaluacionMongo>(inicialEvaluacionMongo);
 
   return (
     <>

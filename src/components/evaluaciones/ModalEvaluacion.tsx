@@ -1,25 +1,15 @@
 import { Fragment, useEffect, useState } from "react";
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
-import type { TypeEvaluacion } from "../../Types/TypeNuevaEvaluacion";
 import contenidosPdaPreescolar from "../../components/ContenidosPdaPreescolar";
 import evaluacionInicial from "../../Types/TypeNuevaEvaluacion";
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
+import type { TypeNuevaEvaluacion } from "../../Types/TypeNuevaEvaluacion";
 
 const SERVER = import.meta.env.VITE_API_URL;
 
-type TypeAlumnos = TypeNuevoAlumno & {
-  _id: string;
-};
-
-type TypeClase = TypeClaseNueva & {
-  escuelaId: string;
-  usuarioId: string;
-  _id: string;
-};
-
 interface Prop {
-  alumnos: TypeAlumnos[];
-  claseSeleccionada: TypeClase;
+  alumnos: TypeAlumnoMongo[];
+  claseSeleccionada: TypeClaseMongo;
   setMotrarModalEvaluacion: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerEvaluaciones: () => Promise<void>;
 }
@@ -37,7 +27,7 @@ function FormEvaluacion({
   obtenerEvaluaciones,
 }: Prop) {
   const [formEvaluacion, setFormEvaluacion] =
-    useState<TypeEvaluacion>(evaluacionInicial);
+    useState<TypeNuevaEvaluacion>(evaluacionInicial);
 
   const [escuelas, setEscuelas] = useState<TypeEscuela[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
