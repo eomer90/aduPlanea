@@ -31,11 +31,28 @@ function EditarAsistencias({
   const [cargando, setCargando] = useState<boolean>(false);
   const [fecha, setFecha] = useState<string>(fechaInicial);
 
+  /*
+   * Solo se consideran los alumnos que tienen una asistencia
+   * guardada para la clase y fecha seleccionadas.
+   *
+   * Si un alumno fue agregado después, no tendrá asistencia
+   * para esa fecha y no aparecerá en esta lista.
+   */
+  const alumnosConAsistencia = alumnos.filter((alumno) => {
+    const materia = alumno.materias?.find(
+      (materia) => String(materia.claseId) === String(claseSeleccionada._id),
+    );
+
+    return materia?.asistencias?.some(
+      (asistencia) => asistencia.fecha === fechaInicial,
+    );
+  });
+
   const cambiarFecha = async () => {
     if (!fecha || fecha === fechaInicial) return;
 
     const confirmar = window.confirm(
-      `¿Cambiar la fecha ${fechaInicial} a ${fecha} para todos los alumnos?`,
+      `¿Cambiar la fecha ${fechaInicial} a ${fecha} para todos los alumnos que tienen asistencia registrada?`,
     );
 
     if (!confirmar) return;
@@ -79,7 +96,7 @@ function EditarAsistencias({
 
   const eliminarFecha = async () => {
     const confirmar = window.confirm(
-      `¿Eliminar la asistencia del ${fechaInicial} para todos los alumnos?`,
+      `¿Eliminar la asistencia del ${fechaInicial} para todos los alumnos que tienen asistencia registrada?`,
     );
 
     if (!confirmar) return;
@@ -128,7 +145,7 @@ function EditarAsistencias({
       justificado: 0,
     };
 
-    alumnos.forEach((alumno) => {
+    alumnosConAsistencia.forEach((alumno) => {
       const materia = alumno.materias?.find(
         (materia) => String(materia.claseId) === String(claseSeleccionada._id),
       );
@@ -212,6 +229,13 @@ function EditarAsistencias({
                 </p>
               </div>
             </div>
+
+            <p className="mt-3 text-xs text-slate-500">
+              Alumnos con asistencia registrada:{" "}
+              <span className="font-semibold">
+                {alumnosConAsistencia.length}
+              </span>
+            </p>
           </div>
 
           <div className="rounded-xl border border-slate-200 p-4">
@@ -245,7 +269,7 @@ function EditarAsistencias({
 
             <p className="mt-1 text-sm text-red-600">
               Esta acción eliminará la asistencia de esta fecha para todos los
-              alumnos de la clase.
+              alumnos que tienen un registro guardado.
             </p>
 
             <button

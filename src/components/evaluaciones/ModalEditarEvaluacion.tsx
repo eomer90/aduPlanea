@@ -25,16 +25,30 @@ function ModalVerEvaluacion({
   const [evaluacion, setEvaluacion] = useState<TypeNuevaEvaluacion>(
     evaluacionSeleccionada,
   );
+
   const [cargando, setCargando] = useState<boolean>(false);
 
   useEffect(() => {
     setEvaluacion(evaluacionSeleccionada);
   }, [evaluacionSeleccionada]);
 
+  /*
+   * Solo se muestran los alumnos que tienen un resultado
+   * guardado dentro de esta evaluación.
+   *
+   * Si un alumno fue agregado después, no tendrá resultado
+   * y no aparecerá al editar esta evaluación.
+   */
+  const alumnosDeLaEvaluacion = alumnos.filter((alumno) =>
+    evaluacion.resultados.some(
+      (resultado) => String(resultado.alumnoId) === String(alumno._id),
+    ),
+  );
+
   // Buscar el resultado de un alumno
   const obtenerResultado = (alumnoId: string) => {
     return evaluacion.resultados.find(
-      (resultado) => resultado.alumnoId === alumnoId,
+      (resultado) => String(resultado.alumnoId) === String(alumnoId),
     );
   };
 
@@ -45,7 +59,7 @@ function ModalVerEvaluacion({
     valor: string | number,
   ) => {
     const nuevosResultados = evaluacion.resultados.map((resultado) =>
-      resultado.alumnoId === alumnoId
+      String(resultado.alumnoId) === String(alumnoId)
         ? {
             ...resultado,
             [campo]: valor,
@@ -66,7 +80,7 @@ function ModalVerEvaluacion({
     valor: string,
   ) => {
     const nuevosResultados = evaluacion.resultados.map((resultado) =>
-      resultado.alumnoId === alumnoId
+      String(resultado.alumnoId) === String(alumnoId)
         ? {
             ...resultado,
             manifestaciones: resultado.manifestaciones.map((manifestacion) =>
@@ -90,8 +104,10 @@ function ModalVerEvaluacion({
   // Guardar cambios
   const guardarCambios = async () => {
     setCargando(true);
+
     try {
       const token = localStorage.getItem("token");
+
       const req = await fetch(`${SERVER}/evaluaciones`, {
         method: "PATCH",
         headers: {
@@ -100,21 +116,38 @@ function ModalVerEvaluacion({
         },
         body: JSON.stringify(evaluacion),
       });
+
       const res = await req.json();
-      obtenerEvaluaciones();
+
+      if (!req.ok) {
+        console.error("Error al actualizar evaluación:", res);
+        return;
+      }
+
+      await obtenerEvaluaciones();
       setVerEvaluacion(false);
+
       console.log(res);
     } catch (error) {
-      console.log(error);
+      console.error("Error al guardar cambios:", error);
     } finally {
       setCargando(false);
     }
   };
 
+  // Eliminar evaluación
   const eliminarEvaluacion = async () => {
+    const confirmar = window.confirm(
+      "¿Seguro que deseas eliminar esta evaluación?",
+    );
+
+    if (!confirmar) return;
+
     setCargando(true);
+
     try {
       const token = localStorage.getItem("token");
+
       const req = await fetch(`${SERVER}/evaluaciones`, {
         method: "DELETE",
         headers: {
@@ -125,12 +158,20 @@ function ModalVerEvaluacion({
           _id: evaluacionSeleccionada._id,
         }),
       });
+
       const res = await req.json();
-      obtenerEvaluaciones();
+
+      if (!req.ok) {
+        console.error("Error al eliminar evaluación:", res);
+        return;
+      }
+
+      await obtenerEvaluaciones();
       setVerEvaluacion(false);
+
       console.log(res);
     } catch (error) {
-      console.log(error);
+      console.error("Error al eliminar evaluación:", error);
     } finally {
       setCargando(false);
     }
@@ -177,6 +218,7 @@ function ModalVerEvaluacion({
           </p>
         </div>
       )}
+
       <div className="modal-evaluacion flex max-h-[95vh] w-full max-w-6xl flex-col rounded-2xl bg-white shadow-xl">
         {/* HEADER */}
         <div className="flex items-center justify-between border-b border-slate-200 p-6">
@@ -252,10 +294,7 @@ function ModalVerEvaluacion({
             </div>
           </div>
 
-          {/* ========================= */}
           {/* CONTENIDO PDA */}
-          {/* ========================= */}
-
           {esContenidoPDA ? (
             <div>
               <h3 className="mb-3 text-lg font-semibold text-slate-800">
@@ -263,7 +302,7 @@ function ModalVerEvaluacion({
               </h3>
 
               <div>
-                {alumnos.map((a) => {
+                {alumnosDeLaEvaluacion.map((a) => {
                   const resultado = obtenerResultado(a._id);
 
                   return (
@@ -286,8 +325,7 @@ function ModalVerEvaluacion({
                         <tbody>
                           {filtro.map((f) => (
                             <Fragment key={f.id}>
-                              {/* Campo formativo */}
-
+                              {/* CAMPO FORMATIVO */}
                               <tr>
                                 <td
                                   colSpan={2}
@@ -297,8 +335,7 @@ function ModalVerEvaluacion({
                                 </td>
                               </tr>
 
-                              {/* Encabezados */}
-
+                              {/* ENCABEZADOS */}
                               <tr>
                                 <th className="w-1/2 border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-600">
                                   PDAs
@@ -309,8 +346,7 @@ function ModalVerEvaluacion({
                                 </th>
                               </tr>
 
-                              {/* PDAs */}
-
+                              {/* PDAS */}
                               {f.contenidos.map((c) =>
                                 c.pdas.map((p) => {
                                   const pdaId = `${c.id}-${p.id}`;
@@ -330,7 +366,7 @@ function ModalVerEvaluacion({
                                       <td className="w-1/2 border-b border-slate-100 px-4 py-4 align-top">
                                         <textarea
                                           value={
-                                            manifestacion?.manifestacion || ""
+                                            manifestacion?.manifestacion ?? ""
                                           }
                                           onChange={(e) =>
                                             actualizarManifestacion(
@@ -358,10 +394,7 @@ function ModalVerEvaluacion({
               </div>
             </div>
           ) : (
-            /* ========================= */
             /* OTROS INSTRUMENTOS */
-            /* ========================= */
-
             <div>
               <h3 className="mb-3 text-lg font-semibold text-slate-800">
                 Resultados
@@ -386,14 +419,8 @@ function ModalVerEvaluacion({
                   </thead>
 
                   <tbody>
-                    {alumnos.map((alumno) => {
+                    {alumnosDeLaEvaluacion.map((alumno) => {
                       const resultado = obtenerResultado(alumno._id);
-
-                      console.log(
-                        alumno.nombre,
-                        "Nivel guardado:",
-                        resultado?.nivelDesempeno,
-                      );
 
                       return (
                         <tr
@@ -487,6 +514,7 @@ function ModalVerEvaluacion({
           >
             Eliminar evaluación
           </button>
+
           <button
             type="button"
             onClick={() => setVerEvaluacion(false)}

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import contenidosPdaPreescolar from "../../components/ContenidosPdaPreescolar";
 import evaluacionInicial from "../../Types/TypeNuevaEvaluacion";
 import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
@@ -31,6 +31,35 @@ function FormEvaluacion({
 
   const [escuelas, setEscuelas] = useState<TypeEscuela[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
+
+  // Ordenar alumnos
+  const alumnosOrdenados = useMemo(() => {
+    return [...alumnos].sort((a, b) => {
+      const apellidoPaterno = a.apellidoPaterno.localeCompare(
+        b.apellidoPaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoPaterno !== 0) {
+        return apellidoPaterno;
+      }
+
+      const apellidoMaterno = a.apellidoMaterno.localeCompare(
+        b.apellidoMaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoMaterno !== 0) {
+        return apellidoMaterno;
+      }
+
+      return a.nombre.localeCompare(b.nombre, "es", {
+        sensitivity: "base",
+      });
+    });
+  }, [alumnos]);
 
   // Obtener escuela
   const obtenerEscuelas = async () => {
@@ -213,6 +242,24 @@ function FormEvaluacion({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Las evaluaciones normales requieren ambos tipos de evaluación
+    if (formEvaluacion.instrumento !== "ContenidosPDA") {
+      const resultadosIncompletos = alumnos.some((alumno) => {
+        const resultado = formEvaluacion.resultados.find(
+          (resultado) => resultado.alumnoId === alumno._id,
+        );
+
+        return !resultado?.calificacion || !resultado?.nivelDesempeno;
+      });
+
+      if (resultadosIncompletos) {
+        alert(
+          "Debes registrar la calificación y el nivel de desempeño de todos los alumnos.",
+        );
+        return;
+      }
+    }
+
     try {
       setCargando(true);
 
@@ -220,6 +267,13 @@ function FormEvaluacion({
 
       const evaluacion = {
         ...formEvaluacion,
+
+        // En evaluaciones normales ambos están activos
+        ...(formEvaluacion.instrumento !== "ContenidosPDA" && {
+          cuantitativa: true,
+          cualitativa: true,
+        }),
+
         materia: claseSeleccionada.materia,
         claseId: claseSeleccionada._id,
       };
@@ -375,57 +429,26 @@ function FormEvaluacion({
 
           {/* TIPO DE EVALUACIÓN */}
 
-          {formEvaluacion.instrumento !== "ContenidosPDA" && (
-            <div className="flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
-              <p className="text-sm font-medium text-slate-700">
-                Selecciona si la evaluación es
-              </p>
+          {formEvaluacion.instrumento !== "ContenidosPDA" &&
+            formEvaluacion.instrumento !== "" && (
+              <div className="border-t border-slate-200 pt-5">
+                <p className="text-sm font-medium text-slate-700">
+                  Tipo de evaluación
+                </p>
 
-              <div className="flex flex-wrap gap-5">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formEvaluacion.cuantitativa}
-                    onChange={(e) =>
-                      setFormEvaluacion({
-                        ...formEvaluacion,
-                        cuantitativa: e.target.checked,
-                      })
-                    }
-                    className="h-4 w-4"
-                  />
-
-                  <span className="text-sm font-medium text-slate-700">
-                    Cuantitativa
-                  </span>
-                </label>
-
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formEvaluacion.cualitativa}
-                    onChange={(e) =>
-                      setFormEvaluacion({
-                        ...formEvaluacion,
-                        cualitativa: e.target.checked,
-                      })
-                    }
-                    className="h-4 w-4"
-                  />
-
-                  <span className="text-sm font-medium text-slate-700">
-                    Cualitativa
-                  </span>
-                </label>
+                <p className="mt-1 text-sm text-slate-500">
+                  Las evaluaciones normales registran obligatoriamente la
+                  información cuantitativa y cualitativa. El docente puede
+                  decidir posteriormente cuál utilizar.
+                </p>
               </div>
-            </div>
-          )}
+            )}
 
           {/* CONTENIDOS Y PDA */}
 
           {formEvaluacion.instrumento === "ContenidosPDA" && (
             <div className="space-y-6">
-              {alumnos.map((a) => (
+              {alumnosOrdenados.map((a) => (
                 <div
                   key={a._id}
                   className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
@@ -535,17 +558,13 @@ function FormEvaluacion({
                         Alumno
                       </th>
 
-                      {formEvaluacion.cuantitativa && (
-                        <th className="w-32 px-4 py-3 text-left text-sm font-semibold text-slate-700">
-                          Calificación
-                        </th>
-                      )}
+                      <th className="w-32 px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                        Calificación
+                      </th>
 
-                      {formEvaluacion.cualitativa && (
-                        <th className="min-w-[220px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
-                          Nivel de desempeño
-                        </th>
-                      )}
+                      <th className="min-w-[220px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                        Nivel de desempeño
+                      </th>
 
                       <th className="min-w-[300px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
                         Observaciones
@@ -554,7 +573,7 @@ function FormEvaluacion({
                   </thead>
 
                   <tbody>
-                    {alumnos.map((alumno) => {
+                    {alumnosOrdenados.map((alumno) => {
                       const resultado = formEvaluacion.resultados.find(
                         (resultado) => resultado.alumnoId === alumno._id,
                       );
@@ -569,54 +588,62 @@ function FormEvaluacion({
                             {alumno.apellidoMaterno}
                           </td>
 
-                          {formEvaluacion.cuantitativa && (
-                            <td className="px-4 py-3">
-                              <input
-                                type="number"
-                                min="0"
-                                max="10"
-                                step="0.1"
-                                value={resultado?.calificacion || ""}
-                                onChange={(e) =>
-                                  cambiarResultado(
-                                    alumno._id,
-                                    "calificacion",
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="0 - 10"
-                                className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                              />
-                            </td>
-                          )}
+                          {/* CUANTITATIVA */}
 
-                          {formEvaluacion.cualitativa && (
-                            <td className="px-4 py-3">
-                              <select
-                                value={resultado?.nivelDesempeno || ""}
-                                onChange={(e) =>
-                                  cambiarResultado(
-                                    alumno._id,
-                                    "nivelDesempeno",
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                              >
-                                <option value="">Selecciona</option>
-                                <option value="Requiere apoyo">
-                                  Requiere apoyo
-                                </option>
-                                <option value="En desarrollo">
-                                  En desarrollo
-                                </option>
-                                <option value="Satisfactorio">
-                                  Satisfactorio
-                                </option>
-                                <option value="Destacado">Destacado</option>
-                              </select>
-                            </td>
-                          )}
+                          <td className="px-4 py-3">
+                            <input
+                              type="number"
+                              min="0"
+                              max="10"
+                              step="0.1"
+                              value={resultado?.calificacion || ""}
+                              onChange={(e) =>
+                                cambiarResultado(
+                                  alumno._id,
+                                  "calificacion",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="0 - 10"
+                              required
+                              className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                          </td>
+
+                          {/* CUALITATIVA */}
+
+                          <td className="px-4 py-3">
+                            <select
+                              value={resultado?.nivelDesempeno || ""}
+                              onChange={(e) =>
+                                cambiarResultado(
+                                  alumno._id,
+                                  "nivelDesempeno",
+                                  e.target.value,
+                                )
+                              }
+                              required
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            >
+                              <option value="">Selecciona</option>
+
+                              <option value="Requiere apoyo">
+                                Requiere apoyo
+                              </option>
+
+                              <option value="En desarrollo">
+                                En desarrollo
+                              </option>
+
+                              <option value="Satisfactorio">
+                                Satisfactorio
+                              </option>
+
+                              <option value="Destacado">Destacado</option>
+                            </select>
+                          </td>
+
+                          {/* OBSERVACIONES OPCIONALES */}
 
                           <td className="px-4 py-3">
                             <textarea
@@ -629,7 +656,7 @@ function FormEvaluacion({
                                 )
                               }
                               rows={2}
-                              placeholder="Observaciones..."
+                              placeholder="Observaciones opcionales..."
                               className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                             />
                           </td>

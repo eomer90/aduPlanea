@@ -214,23 +214,23 @@ function Detalles() {
       ? Math.round((totalEntregadas / totalActividades) * 100)
       : 0;
 
-  const resultados = evaluaciones.flatMap(
-    (evaluacion) => evaluacion.resultados || [],
-  );
+  // const resultados = evaluaciones.flatMap(
+  //   (evaluacion) => evaluacion.resultados || [],
+  // );
 
-  const calificaciones = resultados
-    .map((resultado) => Number(resultado.calificacion))
-    .filter((calificacion) => !Number.isNaN(calificacion));
+  // const calificaciones = resultados
+  //   .map((resultado) => Number(resultado.calificacion))
+  //   .filter((calificacion) => !Number.isNaN(calificacion));
 
-  const promedioGeneral =
-    calificaciones.length > 0
-      ? (
-          calificaciones.reduce(
-            (total, calificacion) => total + calificacion,
-            0,
-          ) / calificaciones.length
-        ).toFixed(1)
-      : "—";
+  // const promedioGeneral =
+  //   calificaciones.length > 0
+  //     ? (
+  //         calificaciones.reduce(
+  //           (total, calificacion) => total + calificacion,
+  //           0,
+  //         ) / calificaciones.length
+  //       ).toFixed(1)
+  //     : "—";
 
   const alumnosAtencion = alumnos.filter((alumno) => {
     const materia = alumno.materias.find(
@@ -449,12 +449,12 @@ function Detalles() {
 
                   <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <p className="text-sm font-medium text-slate-500">
-                      Promedio general
+                      Evaluaciones realizadas
                     </p>
 
                     <div className="mt-3 flex items-end justify-between">
                       <p className="text-3xl font-bold text-slate-900">
-                        {promedioGeneral}
+                        {evaluaciones.length}
                       </p>
 
                       <span className="rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">

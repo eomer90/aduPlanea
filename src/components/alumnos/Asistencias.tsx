@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
-import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 import ModalLista from "../alumnos/ModalLista";
 import EditarAsistencias from "../alumnos/EditarAsistencias";
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 
 interface Props {
   alumnos: TypeAlumnoMongo[];
@@ -13,14 +13,12 @@ interface Props {
 function Asistencias({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
   const [mostrarNuevaAsistencia, setMostrarNuevaAsistencia] =
     useState<boolean>(false);
-
   const [mostrarEditarAsistencias, setMostrarEditarAsistencias] =
     useState<boolean>(false);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string>("");
 
   const fechas = useMemo(() => {
     const fechasUnicas = new Set<string>();
-
     alumnos.forEach((alumno) => {
       const materia = alumno.materias?.find(
         (materia) => String(materia.claseId) === String(claseSeleccionada._id),
@@ -35,6 +33,34 @@ function Asistencias({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
 
     return Array.from(fechasUnicas).sort((a, b) => b.localeCompare(a));
   }, [alumnos, claseSeleccionada._id]);
+
+  const alumnosOrdenados = useMemo(() => {
+    return [...alumnos].sort((a, b) => {
+      const apellidoPaterno = a.apellidoPaterno.localeCompare(
+        b.apellidoPaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoPaterno !== 0) {
+        return apellidoPaterno;
+      }
+
+      const apellidoMaterno = a.apellidoMaterno.localeCompare(
+        b.apellidoMaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoMaterno !== 0) {
+        return apellidoMaterno;
+      }
+
+      return a.nombre.localeCompare(b.nombre, "es", {
+        sensitivity: "base",
+      });
+    });
+  }, [alumnos]);
 
   return (
     <section className="mt-6 space-y-6">
@@ -105,7 +131,7 @@ function Asistencias({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
 
       {mostrarNuevaAsistencia && (
         <ModalLista
-          alumnosOrdenados={alumnos}
+          alumnosOrdenados={alumnosOrdenados}
           claseSeleccionada={claseSeleccionada}
           setModalPasarLista={setMostrarNuevaAsistencia}
           obtenerAlumnos={obtenerAlumnos}
@@ -114,7 +140,7 @@ function Asistencias({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
 
       {mostrarEditarAsistencias && (
         <EditarAsistencias
-          alumnos={alumnos}
+          alumnos={alumnosOrdenados}
           claseSeleccionada={claseSeleccionada}
           fechaInicial={fechaSeleccionada}
           setMostrarEditarAsistencias={setMostrarEditarAsistencias}

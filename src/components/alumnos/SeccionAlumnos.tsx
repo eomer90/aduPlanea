@@ -75,7 +75,34 @@ function SeccionAlumnos({
 
       return nombreCompleto.includes(busquedaAlumno.toLowerCase());
     })
-    .sort((a, b) => a.apellidoPaterno.localeCompare(b.apellidoPaterno));
+    .sort((a, b) => {
+      // Primero por apellido paterno
+      const apellidoPaterno = a.apellidoPaterno.localeCompare(
+        b.apellidoPaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoPaterno !== 0) {
+        return apellidoPaterno;
+      }
+
+      // Si el paterno es igual, ordenar por apellido materno
+      const apellidoMaterno = a.apellidoMaterno.localeCompare(
+        b.apellidoMaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoMaterno !== 0) {
+        return apellidoMaterno;
+      }
+
+      // Si ambos apellidos son iguales, ordenar por nombre
+      return a.nombre.localeCompare(b.nombre, "es", {
+        sensitivity: "base",
+      });
+    });
 
   /* =========================================================
      ALUMNOS CON OBSERVACIONES
@@ -281,9 +308,9 @@ function SeccionAlumnos({
     (resultado) => resultado.calificacion !== "",
   );
 
-  const resultadosConNivel = resultadosEvaluacion.filter(
-    (resultado) => resultado.nivelDesempeno !== "",
-  );
+  // const resultadosConNivel = resultadosEvaluacion.filter(
+  //   (resultado) => resultado.nivelDesempeno !== "",
+  // );
 
   const promedioEvaluacion =
     resultadosConCalificacion.length > 0
@@ -718,16 +745,10 @@ function SeccionAlumnos({
                   </div>
 
                   <div className="rounded-lg bg-slate-50 p-3">
-                    <p className="text-xs text-slate-500">
-                      {evaluacionSeleccionada.cuantitativa
-                        ? "Promedio"
-                        : "Resultados"}
-                    </p>
+                    <p className="text-xs text-slate-500">Promedio</p>
 
                     <p className="mt-1 text-lg font-bold text-slate-700">
-                      {evaluacionSeleccionada.cuantitativa
-                        ? promedioEvaluacion.toFixed(1)
-                        : resultadosConNivel.length}
+                      {promedioEvaluacion.toFixed(1)}
                     </p>
                   </div>
                 </div>
@@ -944,7 +965,11 @@ function SeccionAlumnos({
 
                 {vistaAlumnos === "evaluaciones" && (
                   <>
-                    <th className="px-4 py-3 font-semibold">Resultado</th>
+                    <th className="px-4 py-3 font-semibold">Calificación</th>
+
+                    <th className="px-4 py-3 font-semibold">
+                      Nivel de desempeño
+                    </th>
 
                     <th className="px-4 py-3 font-semibold">Observaciones</th>
                   </>
@@ -1079,10 +1104,10 @@ function SeccionAlumnos({
                           </>
                         )}
 
-                        {/* EVALUACIÓN */}
-
                         {vistaAlumnos === "evaluaciones" && (
                           <>
+                            {/* CALIFICACIÓN */}
+
                             <td className="px-4 py-4 text-sm">
                               {!evaluacionSeleccionada ? (
                                 <span className="text-slate-400">
@@ -1092,21 +1117,33 @@ function SeccionAlumnos({
                                 <span className="text-slate-400">
                                   Sin resultado
                                 </span>
-                              ) : evaluacionSeleccionada.cuantitativa ? (
+                              ) : (
                                 <span className="font-semibold text-indigo-600">
                                   {resultado.calificacion || "Sin calificación"}
                                 </span>
-                              ) : evaluacionSeleccionada.cualitativa ? (
+                              )}
+                            </td>
+
+                            {/* NIVEL DE DESEMPEÑO */}
+
+                            <td className="px-4 py-4 text-sm">
+                              {!evaluacionSeleccionada ? (
+                                <span className="text-slate-400">
+                                  Selecciona una evaluación
+                                </span>
+                              ) : !resultado ? (
+                                <span className="text-slate-400">
+                                  Sin resultado
+                                </span>
+                              ) : (
                                 <span className="font-medium text-slate-700">
                                   {resultado.nivelDesempeno ||
                                     "Sin nivel de desempeño"}
                                 </span>
-                              ) : (
-                                <span className="text-slate-400">
-                                  Sin resultado
-                                </span>
                               )}
                             </td>
+
+                            {/* OBSERVACIONES */}
 
                             <td className="max-w-md px-4 py-4 text-sm text-slate-600">
                               {resultado?.observaciones || "Sin observaciones"}
@@ -1122,7 +1159,7 @@ function SeccionAlumnos({
                       <td
                         colSpan={
                           vistaAlumnos === "evaluaciones"
-                            ? 4
+                            ? 5
                             : vistaAlumnos === "asistencia"
                               ? 6
                               : 5

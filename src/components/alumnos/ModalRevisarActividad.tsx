@@ -1,11 +1,7 @@
 import { useState } from "react";
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
 import ModalCargando from "../ModalCargando";
 import type { TypeClase } from "./SeccionAlumnos";
-
-type TypeAlumnos = TypeNuevoAlumno & {
-  _id: string;
-};
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
 
 type TypeActividad = {
   claseId: string;
@@ -22,7 +18,7 @@ type TypeActividadAlumno = {
 };
 
 interface AlumnosProp {
-  alumnosOrdenados: TypeAlumnos[];
+  alumnosOrdenados: TypeAlumnoMongo[];
   claseSeleccionada: TypeClase;
   setMostrarModalRevisarActividad: React.Dispatch<
     React.SetStateAction<boolean>

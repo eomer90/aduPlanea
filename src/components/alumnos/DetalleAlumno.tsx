@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
 import ModalCargando from "../ModalCargando";
+import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
+
+const SERVER = import.meta.env.VITE_API_URL;
 
 interface Prop {
   alumnoSeleccionado: string;
   setAlumnoSeleccionado: React.Dispatch<React.SetStateAction<string>>;
   setModalDetalleAlumno: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
-  claseSeleccionada: TypeClaseNueva;
+  claseSeleccionada: TypeClaseMongo;
 }
-
-const SERVER = import.meta.env.VITE_API_URL;
-const ROUTE2 = "/alumnos";
 
 function DetalleAlumno({
   alumnoSeleccionado,
@@ -22,28 +21,22 @@ function DetalleAlumno({
   claseSeleccionada,
 }: Prop) {
   const [alumnoEncontrado, setAlumnoEncontrado] = useState<TypeNuevoAlumno>();
-
   const [cargando, setCargando] = useState<boolean>(false);
 
   const obtenerAlumno = async () => {
     setCargando(true);
-
     try {
       const token = localStorage.getItem("token");
-
-      const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
+      const req = await fetch(`${SERVER}/alumnos/${alumnoSeleccionado}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const res = await req.json();
-
-      if (res.error) {
+      if (!req.ok) {
         console.log(res.mensaje);
         return;
       }
-
       setAlumnoEncontrado(res.alumnoEncontrado);
     } catch (error) {
       console.log(error);
@@ -64,7 +57,6 @@ function DetalleAlumno({
     >,
   ) => {
     const { name, value } = e.target;
-
     setAlumnoEncontrado({
       ...alumnoEncontrado!,
       [name]: value,
@@ -76,23 +68,20 @@ function DetalleAlumno({
     estado: "presente" | "falta" | "retardo" | "justificado",
   ) => {
     if (!alumnoEncontrado) return;
-
     const nuevasAsistencias = [...asistencias];
-
     nuevasAsistencias[index] = {
       ...nuevasAsistencias[index],
       estado,
     };
 
     const nuevasMaterias = alumnoEncontrado.materias.map((mat) =>
-      mat.nombre === claseSeleccionada.materia
+      String(mat.claseId) === String(claseSeleccionada._id)
         ? {
             ...mat,
             asistencias: nuevasAsistencias,
           }
         : mat,
     );
-
     setAlumnoEncontrado({
       ...alumnoEncontrado,
       materias: nuevasMaterias,
@@ -100,19 +89,16 @@ function DetalleAlumno({
   };
 
   const cambiarActividad = (
-    index: number,
+    indexActividad: number,
     campo: "titulo" | "estado" | "observaciones",
     valor: string,
   ) => {
     if (!alumnoEncontrado) return;
-
     const nuevasActividades = [...(alumnoEncontrado.actividades || [])];
-
-    nuevasActividades[index] = {
-      ...nuevasActividades[index],
+    nuevasActividades[indexActividad] = {
+      ...nuevasActividades[indexActividad],
       [campo]: valor,
     };
-
     setAlumnoEncontrado({
       ...alumnoEncontrado,
       actividades: nuevasActividades,
@@ -121,12 +107,9 @@ function DetalleAlumno({
 
   const guardarCambios = async () => {
     if (!alumnoEncontrado) return;
-
     setCargando(true);
-
     try {
       const token = localStorage.getItem("token");
-
       const datos = {
         nombre: alumnoEncontrado.nombre,
         apellidoPaterno: alumnoEncontrado.apellidoPaterno,
@@ -137,8 +120,7 @@ function DetalleAlumno({
         materias: alumnoEncontrado.materias,
         actividades: alumnoEncontrado.actividades || [],
       };
-
-      const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
+      const req = await fetch(`${SERVER}/alumnos/${alumnoSeleccionado}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -146,17 +128,13 @@ function DetalleAlumno({
         },
         body: JSON.stringify(datos),
       });
-
       const res = await req.json();
-
-      if (res.error) {
+      if (!req.ok) {
         console.log(res.mensaje);
         return;
       }
-
       setAlumnoSeleccionado("");
       setModalDetalleAlumno(false);
-
       await obtenerAlumnos();
     } catch (error) {
       console.log(error);
@@ -166,34 +144,22 @@ function DetalleAlumno({
   };
 
   const eliminarAlumno = async () => {
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas eliminar este alumno?",
-    );
-
-    if (!confirmar) return;
-
     setCargando(true);
-
     try {
       const token = localStorage.getItem("token");
-
-      const req = await fetch(`${SERVER}${ROUTE2}/${alumnoSeleccionado}`, {
+      const req = await fetch(`${SERVER}/alumnos/${alumnoSeleccionado}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const res = await req.json();
-
-      if (res.error) {
+      if (!req.ok) {
         console.log(res.mensaje);
         return;
       }
-
       setAlumnoSeleccionado("");
       setModalDetalleAlumno(false);
-
       await obtenerAlumnos();
     } catch (error) {
       console.log(error);
@@ -207,7 +173,7 @@ function DetalleAlumno({
   }
 
   const materia = alumnoEncontrado.materias.find(
-    (materia) => materia.nombre === claseSeleccionada.materia,
+    (materia) => String(materia.claseId) === String(claseSeleccionada._id),
   );
 
   const asistencias = materia?.asistencias ?? [];
@@ -222,11 +188,15 @@ function DetalleAlumno({
     (a) => a.estado === "justificado",
   ).length;
 
+  const actividadesDeLaClase =
+    alumnoEncontrado.actividades?.filter(
+      (actividad) =>
+        String(actividad.claseId) === String(claseSeleccionada._id),
+    ) ?? [];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-2 sm:p-4">
       <div className="flex max-h-[95vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white shadow-xl sm:max-h-[90vh] sm:rounded-2xl">
-        {/* ENCABEZADO */}
-
         <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
           <div className="min-w-0 pr-4">
             <h2 className="truncate text-lg font-semibold text-slate-900 sm:text-xl">
@@ -248,11 +218,7 @@ function DetalleAlumno({
           </button>
         </div>
 
-        {/* CONTENIDO */}
-
         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
-          {/* DATOS DEL ALUMNO */}
-
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
               Datos del alumno
@@ -344,8 +310,6 @@ function DetalleAlumno({
             </div>
           </section>
 
-          {/* ASISTENCIAS */}
-
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
               Historial de asistencia
@@ -394,8 +358,6 @@ function DetalleAlumno({
             )}
           </section>
 
-          {/* RESUMEN */}
-
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
               Resumen de asistencia
@@ -434,14 +396,12 @@ function DetalleAlumno({
             </div>
           </section>
 
-          {/* ACTIVIDADES */}
-
           <section>
             <h3 className="mb-3 text-sm font-semibold text-slate-800">
               Actividades
             </h3>
 
-            {alumnoEncontrado.actividades?.length > 0 ? (
+            {actividadesDeLaClase.length > 0 ? (
               <div className="max-h-72 overflow-auto rounded-lg border border-slate-200">
                 <table className="min-w-[700px] w-full text-sm">
                   <thead className="sticky top-0 z-10 bg-slate-50">
@@ -465,57 +425,60 @@ function DetalleAlumno({
                   </thead>
 
                   <tbody>
-                    {alumnoEncontrado.actividades.map((actividad, index) => (
-                      <tr key={index} className="border-t border-slate-200">
-                        {/* TÍTULO */}
+                    {actividadesDeLaClase.map((actividad) => {
+                      const indexActividad =
+                        alumnoEncontrado.actividades?.findIndex(
+                          (actividadAlumno) => actividadAlumno === actividad,
+                        ) ?? -1;
 
-                        <td className="px-3 py-2 text-sm text-slate-700">
-                          {actividad.titulo}
-                        </td>
+                      return (
+                        <tr
+                          key={`${actividad.titulo}-${actividad.fecha}`}
+                          className="border-t border-slate-200"
+                        >
+                          <td className="px-3 py-2 text-sm text-slate-700">
+                            {actividad.titulo}
+                          </td>
+                          <td className="px-3 py-2 text-sm text-slate-600">
+                            {actividad.fecha}
+                          </td>
+                          <td className="px-3 py-2">
+                            <select
+                              value={actividad.estado}
+                              onChange={(e) =>
+                                cambiarActividad(
+                                  indexActividad,
+                                  "estado",
+                                  e.target.value,
+                                )
+                              }
+                              className="border-0 bg-transparent p-0 text-sm outline-none"
+                            >
+                              <option value="Pendiente">Pendiente</option>
 
-                        {/* FECHA SOLO SE MUESTRA */}
+                              <option value="Entregado">Entregado</option>
 
-                        <td className="px-3 py-2 text-sm text-slate-600">
-                          {actividad.fecha}
-                        </td>
-
-                        {/* ESTADO */}
-
-                        <td className="px-3 py-2">
-                          <select
-                            value={actividad.estado}
-                            onChange={(e) =>
-                              cambiarActividad(index, "estado", e.target.value)
-                            }
-                            className="border-0 bg-transparent p-0 text-sm outline-none"
-                          >
-                            <option value="Pendiente">Pendiente</option>
-
-                            <option value="Entregado">Entregado</option>
-
-                            <option value="No entregado">No entregado</option>
-                          </select>
-                        </td>
-
-                        {/* OBSERVACIONES */}
-
-                        <td className="px-3 py-2">
-                          <input
-                            type="text"
-                            value={actividad.observaciones}
-                            onChange={(e) =>
-                              cambiarActividad(
-                                index,
-                                "observaciones",
-                                e.target.value,
-                              )
-                            }
-                            placeholder="Sin observaciones"
-                            className="w-full border-0 bg-transparent p-0 text-sm outline-none"
-                          />
-                        </td>
-                      </tr>
-                    ))}
+                              <option value="No entregado">No entregado</option>
+                            </select>
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="text"
+                              value={actividad.observaciones}
+                              onChange={(e) =>
+                                cambiarActividad(
+                                  indexActividad,
+                                  "observaciones",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="Sin observaciones"
+                              className="w-full border-0 bg-transparent p-0 text-sm outline-none"
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -526,9 +489,6 @@ function DetalleAlumno({
             )}
           </section>
         </div>
-
-        {/* FOOTER */}
-
         <div className="flex shrink-0 flex-col gap-3 border-t border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <button
             type="button"

@@ -1,18 +1,12 @@
 import { useMemo, useState } from "react";
-import type {
-  TypeNuevoAlumno,
-  TypeActividad,
-} from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 import ModalRevisarActividad from "../alumnos/ModalRevisarActividad";
 import EditarActividades from "../alumnos/EditarActividades";
-
-type TypeAlumnos = TypeNuevoAlumno & {
-  _id: string;
-};
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
+import type { TypeActividad } from "../../Types/TypeNuevoAlumno";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 
 interface Props {
-  alumnos: TypeAlumnos[];
+  alumnos: TypeAlumnoMongo[];
   claseSeleccionada: TypeClaseMongo;
   obtenerAlumnos: () => Promise<void>;
 }
@@ -20,16 +14,13 @@ interface Props {
 function Actividades({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
   const [mostrarNuevaActividad, setMostrarNuevaActividad] =
     useState<boolean>(false);
-
   const [mostrarEditarActividades, setMostrarEditarActividades] =
     useState<boolean>(false);
-
   const [actividadSeleccionada, setActividadSeleccionada] =
     useState<TypeActividad | null>(null);
 
   const actividades = useMemo(() => {
     const actividadesMap = new Map<string, TypeActividad>();
-
     alumnos.forEach((alumno) => {
       alumno.actividades?.forEach((actividad) => {
         if (String(actividad.claseId) === String(claseSeleccionada._id)) {
@@ -41,15 +32,41 @@ function Actividades({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
         }
       });
     });
-
     return Array.from(actividadesMap.values()).sort((a, b) =>
       b.fecha.localeCompare(a.fecha),
     );
   }, [alumnos, claseSeleccionada._id]);
 
+  const alumnosOrdenados = useMemo(() => {
+    return [...alumnos].sort((a, b) => {
+      const apellidoPaterno = a.apellidoPaterno.localeCompare(
+        b.apellidoPaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoPaterno !== 0) {
+        return apellidoPaterno;
+      }
+
+      const apellidoMaterno = a.apellidoMaterno.localeCompare(
+        b.apellidoMaterno,
+        "es",
+        { sensitivity: "base" },
+      );
+
+      if (apellidoMaterno !== 0) {
+        return apellidoMaterno;
+      }
+
+      return a.nombre.localeCompare(b.nombre, "es", {
+        sensitivity: "base",
+      });
+    });
+  }, [alumnos]);
+
   return (
     <section className="mt-6 space-y-6">
-      {/* ENCABEZADO */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -58,7 +75,7 @@ function Actividades({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Consulta y administra las actividades revisadas.
+              Consulta y administra las actividades de esta clase.
             </p>
           </div>
 
@@ -72,10 +89,9 @@ function Actividades({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
         </div>
       </section>
 
-      {/* HISTORIAL */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <h3 className="font-semibold text-slate-900">
-          Actividades registradas
+          Historial de actividades
           <span className="ml-2 text-sm font-normal text-slate-400">
             ({actividades.length})
           </span>
@@ -90,7 +106,7 @@ function Actividades({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
             No hay actividades registradas.
           </div>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {actividades.map((actividad) => (
               <button
                 key={`${actividad.titulo}-${actividad.fecha}`}
@@ -99,41 +115,37 @@ function Actividades({ alumnos, claseSeleccionada, obtenerAlumnos }: Props) {
                   setActividadSeleccionada(actividad);
                   setMostrarEditarActividades(true);
                 }}
-                className="flex w-full flex-col gap-2 rounded-xl border border-slate-200 p-4 text-left transition hover:border-indigo-300 hover:bg-indigo-50 sm:flex-row sm:items-center sm:justify-between"
+                className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-indigo-300 hover:bg-indigo-50"
               >
-                <div>
-                  <p className="font-semibold text-slate-800">
-                    {actividad.titulo}
-                  </p>
+                <p className="text-sm font-semibold text-slate-800">
+                  {actividad.titulo}
+                </p>
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    Fecha: {actividad.fecha}
-                  </p>
-                </div>
+                <p className="mt-1 text-sm text-slate-500">
+                  Fecha: {actividad.fecha}
+                </p>
 
-                <span className="text-sm font-medium text-indigo-600">
+                <p className="mt-3 text-xs font-medium text-indigo-600">
                   Editar actividad →
-                </span>
+                </p>
               </button>
             ))}
           </div>
         )}
       </section>
 
-      {/* NUEVA ACTIVIDAD */}
       {mostrarNuevaActividad && (
         <ModalRevisarActividad
-          alumnosOrdenados={alumnos}
+          alumnosOrdenados={alumnosOrdenados}
           claseSeleccionada={claseSeleccionada}
           setMostrarModalRevisarActividad={setMostrarNuevaActividad}
           obtenerAlumnos={obtenerAlumnos}
         />
       )}
 
-      {/* EDITAR ACTIVIDAD */}
       {mostrarEditarActividades && actividadSeleccionada && (
         <EditarActividades
-          alumnos={alumnos}
+          alumnos={alumnosOrdenados}
           claseSeleccionada={claseSeleccionada}
           actividadInicial={{
             titulo: actividadSeleccionada.titulo,

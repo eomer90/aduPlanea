@@ -39,7 +39,6 @@ function FormAlumnos({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const datos = {
       nombre: formAlumno.nombre,
       apellidoPaterno: formAlumno.apellidoPaterno,
@@ -47,7 +46,6 @@ function FormAlumnos({
       grado: claseSeleccionada.grado,
       grupo: claseSeleccionada.grupo,
       observacionesGenerales: formAlumno.observacionesGenerales,
-
       materias: [
         {
           claseId: claseSeleccionada._id,
@@ -59,12 +57,9 @@ function FormAlumnos({
 
       actividades: [],
     };
-
     setCargando(true);
-
     try {
       const token = localStorage.getItem("token");
-
       const req = await fetch(SERVER + ROUTE, {
         method: "POST",
         headers: {
@@ -73,20 +68,15 @@ function FormAlumnos({
         },
         body: JSON.stringify(datos),
       });
-
       const res = await req.json();
-
       if (!req.ok) {
         console.log(res.mensaje);
         return;
       }
-
       setFormAlumno(nuevoAlumno);
       setMostrarFormALumnos(false);
       setMostrarBotonAlumnos(true);
-
       await obtenerAlumnos();
-
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -99,7 +89,6 @@ function FormAlumnos({
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* NOMBRE */}
           <label className="min-w-0">
             <span className="text-sm font-medium text-slate-700">
               Nombre(s)
@@ -116,7 +105,6 @@ function FormAlumnos({
             />
           </label>
 
-          {/* APELLIDO PATERNO */}
           <label className="min-w-0">
             <span className="text-sm font-medium text-slate-700">
               Apellido paterno
@@ -133,7 +121,6 @@ function FormAlumnos({
             />
           </label>
 
-          {/* APELLIDO MATERNO */}
           <label className="min-w-0">
             <span className="text-sm font-medium text-slate-700">
               Apellido materno
@@ -150,7 +137,6 @@ function FormAlumnos({
             />
           </label>
 
-          {/* OBSERVACIONES GENERALES */}
           <label className="min-w-0 sm:col-span-2 lg:col-span-2">
             <span className="text-sm font-medium text-slate-700">
               Observaciones generales
@@ -166,40 +152,8 @@ function FormAlumnos({
               className="mt-2 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
-
-          {/* BOTÓN CERRAR */}
-          <div className="flex items-end justify-start lg:justify-center">
-            <button
-              type="button"
-              onClick={() => {
-                setMostrarFormALumnos(false);
-                setMostrarBotonAlumnos(true);
-              }}
-              aria-label="Cerrar formulario"
-              className="flex h-10 w-full items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 sm:w-10"
-            >
-              ✕
-            </button>
-          </div>
         </div>
 
-        {/* 
-        <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
-          <p className="text-sm text-slate-600">
-            El alumno se agregará a:
-          </p>
-
-          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium text-indigo-700">
-            <span>{claseSeleccionada.materia}</span>
-
-            <span>
-              {claseSeleccionada.grado}° {claseSeleccionada.grupo}
-            </span>
-          </div>
-        </div>
-        */}
-
-        {/* ACCIONES */}
         <div className="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
           <button
             type="submit"

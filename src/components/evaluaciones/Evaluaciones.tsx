@@ -21,55 +21,85 @@ function Evaluaciones({
 }: Prop) {
   const [motrarModalEvaluacion, setMotrarModalEvaluacion] =
     useState<boolean>(false);
+
   const [verEvaluacion, setVerEvaluacion] = useState<boolean>(false);
+
   const [evaluacionSeleccionada, setEvaluacionSeleccionada] =
     useState<TypeEvaluacionMongo>(inicialEvaluacionMongo);
 
   return (
-    <>
-      <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
-        {evaluaciones.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-            <h2 className="text-lg font-semibold text-slate-800">
-              Aún no hay evaluaciones
+    <section className="mt-6 space-y-6">
+      {/* ENCABEZADO */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Evaluaciones
             </h2>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Agrega una evaluación para comenzar a registrar las
-              calificaciones.
+            <p className="mt-1 text-sm text-slate-500">
+              Consulta y administra las evaluaciones de esta clase.
             </p>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setMotrarModalEvaluacion(true)}
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+          >
+            Nueva evaluación
+          </button>
+        </div>
+      </section>
+
+      {/* HISTORIAL */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <h3 className="font-semibold text-slate-900">
+          Historial de evaluaciones
+          <span className="ml-2 text-sm font-normal text-slate-400">
+            ({evaluaciones.length})
+          </span>
+        </h3>
+
+        <p className="mt-1 text-sm text-slate-500">
+          Selecciona una evaluación para consultarla o editarla.
+        </p>
+
+        {evaluaciones.length === 0 ? (
+          <div className="mt-4 rounded-xl bg-slate-50 p-5 text-sm text-slate-500">
+            No hay evaluaciones registradas.
+          </div>
         ) : (
-          <div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {evaluaciones.map((e) => (
               <button
                 key={e._id}
+                type="button"
                 onClick={() => {
-                  setVerEvaluacion(true);
                   setEvaluacionSeleccionada(e);
+                  setVerEvaluacion(true);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+                className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-indigo-300 hover:bg-indigo-50"
               >
-                <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-slate-800">{e.nombre}</h2>
-
-                  <p className="text-xs text-slate-400">Realizada: {e.fecha}</p>
-                </div>
+                <p className="text-sm font-semibold text-slate-800">
+                  {e.nombre}
+                </p>
 
                 <p className="mt-1 text-sm text-slate-500">{e.materia}</p>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  Realizada: {e.fecha}
+                </p>
+
+                <p className="mt-3 text-xs font-medium text-indigo-600">
+                  Ver evaluación →
+                </p>
               </button>
             ))}
           </div>
         )}
+      </section>
 
-        <button
-          type="button"
-          onClick={() => setMotrarModalEvaluacion(true)}
-          className="mt-5 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700"
-        >
-          + Agregar una evaluación
-        </button>
-      </div>
       {motrarModalEvaluacion && (
         <ModalEvaluacion
           alumnos={alumnos}
@@ -78,6 +108,7 @@ function Evaluaciones({
           obtenerEvaluaciones={obtenerEvaluaciones}
         />
       )}
+
       {verEvaluacion && (
         <ModalEditarEvaluacion
           setVerEvaluacion={setVerEvaluacion}
@@ -87,7 +118,7 @@ function Evaluaciones({
           claseSeleccionada={claseSeleccionada}
         />
       )}
-    </>
+    </section>
   );
 }
 

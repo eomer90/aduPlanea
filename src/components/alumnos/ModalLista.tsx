@@ -1,13 +1,9 @@
 import { useState } from "react";
-// import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-// import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
 import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
 import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 import ModalCargando from "../ModalCargando";
 
-// type TypeAlumnos = TypeNuevoAlumno & {
-//   _id: string;
-// };
+const SERVER = import.meta.env.VITE_API_URL;
 
 type TypeEstadoAlumno = {
   id: string;
@@ -18,9 +14,6 @@ type TypeObservacionAlumno = {
   id: string;
   observaciones: string;
 };
-
-const SERVER = import.meta.env.VITE_API_URL;
-const ROUTE2 = "/alumnos";
 
 interface AlumnosProp {
   alumnosOrdenados: TypeAlumnoMongo[];
@@ -44,14 +37,11 @@ function ModalLista({
 
   const ponerFecha = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nuevaFecha = e.target.value;
-
     setFecha(nuevaFecha);
-
     const buscarAlumnos = alumnosOrdenados.filter((a) => {
       const materia = a.materias.find(
         (materia) => String(materia.claseId) === String(claseSeleccionada._id),
       );
-
       return materia?.asistencias.some((asis) => asis.fecha === nuevaFecha);
     });
 
@@ -59,11 +49,9 @@ function ModalLista({
       const materia = a.materias.find(
         (materia) => materia.nombre === claseSeleccionada.materia,
       );
-
       const asistencia = materia?.asistencias.find(
         (asis) => asis.fecha === nuevaFecha,
       );
-
       return {
         id: a._id,
         estado: asistencia!.estado,
@@ -74,17 +62,14 @@ function ModalLista({
       const materia = a.materias.find(
         (materia) => materia.nombre === claseSeleccionada.materia,
       );
-
       const asistencia = materia?.asistencias.find(
         (asis) => asis.fecha === nuevaFecha,
       );
-
       return {
         id: a._id,
         observaciones: asistencia?.observaciones || "",
       };
     });
-
     setEstados(antiguosEstados);
     setObservaciones(antiguasObservaciones);
   };
@@ -94,7 +79,6 @@ function ModalLista({
     estado: "presente" | "falta" | "retardo" | "justificado",
   ) => {
     const existe = estados.find((i) => i.id === id);
-
     if (existe) {
       setEstados([
         ...estados.filter((i) => i.id !== id),
@@ -103,10 +87,8 @@ function ModalLista({
           estado: estado,
         },
       ]);
-
       return;
     }
-
     setEstados([
       ...estados,
       {
@@ -118,7 +100,6 @@ function ModalLista({
 
   const guardarObservaciones = (id: string, value: string) => {
     const existe = observaciones.find((i) => i.id === id);
-
     if (existe) {
       setObservaciones([
         ...observaciones.filter((i) => i.id !== id),
@@ -127,10 +108,8 @@ function ModalLista({
           observaciones: value,
         },
       ]);
-
       return;
     }
-
     setObservaciones([
       ...observaciones,
       {
@@ -142,31 +121,25 @@ function ModalLista({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setCargando(true);
-
     const asistencia = alumnosOrdenados.map((alumno) => {
       const estado = estados.find((e) => e.id === alumno._id);
       const observacion = observaciones.find((o) => o.id === alumno._id);
-
       return {
         alumnoId: alumno._id,
         estado: estado?.estado || "presente",
         observaciones: observacion?.observaciones || "",
       };
     });
-
     const datos = {
       fecha,
       claseId: claseSeleccionada._id,
       materia: claseSeleccionada.materia,
       asistencia,
     };
-
     try {
       const token = localStorage.getItem("token");
-
-      const req = await fetch(SERVER + ROUTE2, {
+      const req = await fetch(`${SERVER}/alumnos`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -174,19 +147,15 @@ function ModalLista({
         },
         body: JSON.stringify(datos),
       });
-
       const res = await req.json();
-
-      if (res.error) {
+      if (!req.ok) {
         console.log(res.mensaje);
       }
-
       setFecha("");
       setEstados([]);
       setObservaciones([]);
       setModalPasarLista(false);
-      obtenerAlumnos();
-
+      await obtenerAlumnos();
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -202,7 +171,6 @@ function ModalLista({
         className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-3 sm:items-center sm:p-4"
       >
         <div className="my-auto flex max-h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl sm:max-h-[90vh]">
-          {/* Header */}
           <div className="shrink-0 border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -226,7 +194,6 @@ function ModalLista({
             </div>
           </div>
 
-          {/* Fecha */}
           <div className="shrink-0 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
             <label className="block w-full max-w-xs">
               <span className="text-sm font-medium text-slate-700">
@@ -243,7 +210,6 @@ function ModalLista({
             </label>
           </div>
 
-          {/* Lista */}
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-slate-800">Alumnos</h3>
@@ -259,7 +225,6 @@ function ModalLista({
                   key={a._id}
                   className="border-b border-slate-100 px-3 py-3 last:border-b-0 hover:bg-slate-50 sm:px-4"
                 >
-                  {/* Nombre */}
                   <div className="flex min-w-0 items-start gap-2">
                     <span className="w-5 shrink-0 pt-0.5 text-xs text-slate-400">
                       {index + 1}.
@@ -270,7 +235,6 @@ function ModalLista({
                     </p>
                   </div>
 
-                  {/* Estados */}
                   <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 pl-7">
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-emerald-700">
                       <input
@@ -329,7 +293,6 @@ function ModalLista({
                     </label>
                   </div>
 
-                  {/* Observación */}
                   <div className="mt-2 pl-7">
                     <input
                       type="text"
@@ -351,7 +314,6 @@ function ModalLista({
             </div>
           </div>
 
-          {/* Footer */}
           <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 sm:px-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm text-slate-400">

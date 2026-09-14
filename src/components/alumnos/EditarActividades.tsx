@@ -1,17 +1,7 @@
 import { useState } from "react";
-import type { TypeNuevoAlumno } from "../../Types/TypeNuevoAlumno";
-import type { TypeClaseNueva } from "../../Types/TypeClaseNueva";
 import ModalCargando from "../ModalCargando";
-
-type TypeAlumnos = TypeNuevoAlumno & {
-  _id: string;
-};
-
-type TypeClase = TypeClaseNueva & {
-  _id: string;
-  escuelaId: string;
-  usuarioId: string;
-};
+import type { TypeAlumnoMongo } from "../../Types/TypeAlumnoMongo";
+import type { TypeClaseMongo } from "../../Types/TypeClaseMongo";
 
 export type ActividadClase = {
   titulo: string;
@@ -19,8 +9,8 @@ export type ActividadClase = {
 };
 
 interface Props {
-  alumnos: TypeAlumnos[];
-  claseSeleccionada: TypeClase;
+  alumnos: TypeAlumnoMongo[];
+  claseSeleccionada: TypeClaseMongo;
   actividadInicial: ActividadClase;
   setMostrarEditarActividades: React.Dispatch<React.SetStateAction<boolean>>;
   obtenerAlumnos: () => Promise<void>;
@@ -37,27 +27,25 @@ function EditarActividades({
   const [titulo, setTitulo] = useState<string>(actividadInicial.titulo);
   const [fecha, setFecha] = useState<string>(actividadInicial.fecha);
 
+  const alumnosConActividad = alumnos.filter((alumno) =>
+    alumno.actividades?.some(
+      (actividad) =>
+        actividad.titulo === actividadInicial.titulo &&
+        actividad.fecha === actividadInicial.fecha,
+    ),
+  );
+
   const cambiarActividad = async () => {
     if (!titulo.trim() || !fecha) return;
-
     if (
       titulo.trim() === actividadInicial.titulo &&
       fecha === actividadInicial.fecha
     ) {
       return;
     }
-
-    const confirmar = window.confirm(
-      `¿Actualizar "${actividadInicial.titulo}" para todos los alumnos?`,
-    );
-
-    if (!confirmar) return;
-
     setCargando(true);
-
     try {
       const token = localStorage.getItem("token");
-
       const req = await fetch(
         `${import.meta.env.VITE_API_URL}/alumnos/actividades`,
         {
@@ -75,14 +63,11 @@ function EditarActividades({
           }),
         },
       );
-
       const res = await req.json();
-
-      if (!req.ok || res.error) {
+      if (!req.ok) {
         console.log(res.mensaje);
         return;
       }
-
       await obtenerAlumnos();
       setMostrarEditarActividades(false);
     } catch (error) {
@@ -93,17 +78,9 @@ function EditarActividades({
   };
 
   const eliminarActividad = async () => {
-    const confirmar = window.confirm(
-      `¿Eliminar "${actividadInicial.titulo}" del historial de todos los alumnos?`,
-    );
-
-    if (!confirmar) return;
-
     setCargando(true);
-
     try {
       const token = localStorage.getItem("token");
-
       const req = await fetch(
         `${import.meta.env.VITE_API_URL}/alumnos/actividades`,
         {
@@ -119,14 +96,11 @@ function EditarActividades({
           }),
         },
       );
-
       const res = await req.json();
-
-      if (!req.ok || res.error) {
+      if (!req.ok) {
         console.log(res.mensaje);
         return;
       }
-
       await obtenerAlumnos();
       setMostrarEditarActividades(false);
     } catch (error) {
@@ -136,18 +110,9 @@ function EditarActividades({
     }
   };
 
-  const alumnosConActividad = alumnos.filter((alumno) =>
-    alumno.actividades?.some(
-      (actividad) =>
-        actividad.titulo === actividadInicial.titulo &&
-        actividad.fecha === actividadInicial.fecha,
-    ),
-  ).length;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-2 sm:p-4">
       <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl sm:max-h-[90vh] sm:rounded-2xl">
-        {/* ENCABEZADO */}
         <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
           <div>
             <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
@@ -155,7 +120,7 @@ function EditarActividades({
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Modifica esta actividad para toda la clase.
+              Modifica esta actividad para los alumnos que la tienen registrada.
             </p>
           </div>
 
@@ -168,7 +133,6 @@ function EditarActividades({
           </button>
         </div>
 
-        {/* CONTENIDO */}
         <div className="space-y-5 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
           <div className="rounded-xl border border-slate-200 p-4">
             <label className="block">
@@ -198,7 +162,10 @@ function EditarActividades({
             </label>
 
             <p className="mt-3 text-xs text-slate-500">
-              Esta actividad está registrada para {alumnosConActividad}{" "}
+              Esta actividad está registrada para{" "}
+              <span className="font-semibold">
+                {alumnosConActividad.length}
+              </span>{" "}
               alumno(s).
             </p>
 
@@ -218,8 +185,8 @@ function EditarActividades({
             </h3>
 
             <p className="mt-1 text-sm text-red-600">
-              Esta acción eliminará esta actividad del historial de todos los
-              alumnos de la clase.
+              Esta acción eliminará esta actividad únicamente de los alumnos que
+              la tienen registrada.
             </p>
 
             <button
@@ -232,7 +199,6 @@ function EditarActividades({
           </div>
         </div>
 
-        {/* FOOTER */}
         <div className="shrink-0 border-t border-slate-200 px-4 py-4 sm:px-6">
           <button
             type="button"
