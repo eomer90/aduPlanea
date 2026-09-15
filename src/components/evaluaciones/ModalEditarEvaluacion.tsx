@@ -73,6 +73,35 @@ function ModalVerEvaluacion({
     });
   };
 
+  // Actualizar si el alumno realizó o no la evaluación
+  const actualizarRealizoEvaluacion = (
+    alumnoId: string,
+    realizoEvaluacion: boolean,
+  ) => {
+    const nuevosResultados = evaluacion.resultados.map((resultado) =>
+      String(resultado.alumnoId) === String(alumnoId)
+        ? {
+            ...resultado,
+            realizoEvaluacion,
+
+            // Si cambia a "No", se eliminan los datos de evaluación
+            ...(realizoEvaluacion
+              ? {}
+              : {
+                  calificacion: "",
+                  nivelDesempeno: "",
+                  observaciones: "No presentó la evaluación",
+                }),
+          }
+        : resultado,
+    );
+
+    setEvaluacion({
+      ...evaluacion,
+      resultados: nuevosResultados,
+    });
+  };
+
   // Actualizar una manifestación
   const actualizarManifestacion = (
     alumnoId: string,
@@ -401,10 +430,12 @@ function ModalVerEvaluacion({
               </h3>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200">
-                <table className="w-full min-w-[750px] text-sm">
+                <table className="w-full min-w-[900px] text-sm">
                   <thead className="bg-slate-100">
                     <tr>
                       <th className="p-3 text-left">Alumno</th>
+
+                      <th className="p-3 text-left">¿Realizó la evaluación?</th>
 
                       {evaluacion.cuantitativa && (
                         <th className="p-3 text-left">Calificación</th>
@@ -422,6 +453,9 @@ function ModalVerEvaluacion({
                     {alumnosDeLaEvaluacion.map((alumno) => {
                       const resultado = obtenerResultado(alumno._id);
 
+                      const realizoEvaluacion =
+                        resultado?.realizoEvaluacion === true;
+
                       return (
                         <tr
                           key={alumno._id}
@@ -431,6 +465,47 @@ function ModalVerEvaluacion({
                           <td className="p-3 font-medium">
                             {alumno.nombre} {alumno.apellidoPaterno}{" "}
                             {alumno.apellidoMaterno}
+                          </td>
+
+                          {/* REALIZÓ EVALUACIÓN */}
+                          <td className="p-3">
+                            <div className="flex gap-4">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name={`realizo-${alumno._id}`}
+                                  checked={
+                                    resultado?.realizoEvaluacion === true
+                                  }
+                                  onChange={() =>
+                                    actualizarRealizoEvaluacion(
+                                      alumno._id,
+                                      true,
+                                    )
+                                  }
+                                />
+
+                                <span>Sí</span>
+                              </label>
+
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name={`realizo-${alumno._id}`}
+                                  checked={
+                                    resultado?.realizoEvaluacion === false
+                                  }
+                                  onChange={() =>
+                                    actualizarRealizoEvaluacion(
+                                      alumno._id,
+                                      false,
+                                    )
+                                  }
+                                />
+
+                                <span>No</span>
+                              </label>
+                            </div>
                           </td>
 
                           {/* CUANTITATIVA */}
@@ -446,7 +521,8 @@ function ModalVerEvaluacion({
                                     e.target.value,
                                   )
                                 }
-                                className="w-24 rounded-lg border border-slate-300 p-2"
+                                disabled={!realizoEvaluacion}
+                                className="w-24 rounded-lg border border-slate-300 p-2 disabled:bg-slate-100 disabled:text-slate-400"
                               />
                             </td>
                           )}
@@ -463,18 +539,23 @@ function ModalVerEvaluacion({
                                     e.target.value,
                                   )
                                 }
-                                className="w-40 rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                                disabled={!realizoEvaluacion}
+                                className="w-40 rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-100 disabled:text-slate-400"
                               >
                                 <option value="">Seleccionar</option>
+
                                 <option value="Requiere apoyo">
                                   Requiere apoyo
                                 </option>
+
                                 <option value="En desarrollo">
                                   En desarrollo
                                 </option>
+
                                 <option value="Satisfactorio">
                                   Satisfactorio
                                 </option>
+
                                 <option value="Destacado">Destacado</option>
                               </select>
                             </td>
@@ -490,6 +571,11 @@ function ModalVerEvaluacion({
                                   "observaciones",
                                   e.target.value,
                                 )
+                              }
+                              placeholder={
+                                realizoEvaluacion
+                                  ? "Observaciones..."
+                                  : "No presentó la evaluación"
                               }
                               className="w-full rounded-lg border border-slate-300 p-2"
                               rows={2}

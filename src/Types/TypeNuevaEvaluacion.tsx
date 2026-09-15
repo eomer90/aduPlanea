@@ -5,6 +5,7 @@ export type TypeManifestacion = {
 
 export type TypeResultadoAlumno = {
   alumnoId: string;
+  realizoEvaluacion: boolean;
   calificacion: string;
   nivelDesempeno: string;
   observaciones: string;

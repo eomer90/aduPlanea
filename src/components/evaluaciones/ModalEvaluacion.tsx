@@ -32,7 +32,10 @@ function FormEvaluacion({
   const [escuelas, setEscuelas] = useState<TypeEscuela[]>([]);
   const [cargando, setCargando] = useState<boolean>(false);
 
-  // Ordenar alumnos
+  // ==========================================
+  // ORDENAR ALUMNOS
+  // ==========================================
+
   const alumnosOrdenados = useMemo(() => {
     return [...alumnos].sort((a, b) => {
       const apellidoPaterno = a.apellidoPaterno.localeCompare(
@@ -61,7 +64,10 @@ function FormEvaluacion({
     });
   }, [alumnos]);
 
-  // Obtener escuela
+  // ==========================================
+  // OBTENER ESCUELAS
+  // ==========================================
+
   const obtenerEscuelas = async () => {
     try {
       const req = await fetch(`${SERVER}/escuelas`);
@@ -77,7 +83,10 @@ function FormEvaluacion({
     (e) => e._id === claseSeleccionada.escuelaId,
   );
 
-  // Filtrar contenidos y PDA por grado
+  // ==========================================
+  // FILTRAR CONTENIDOS Y PDA POR GRADO
+  // ==========================================
+
   const filtro = contenidosPdaPreescolar
     .map((campo) => {
       const contenidosFiltrados = campo.contenidos
@@ -100,7 +109,10 @@ function FormEvaluacion({
     })
     .filter((campo) => campo.contenidos.length > 0);
 
-  // Cambiar datos generales de la evaluación
+  // ==========================================
+  // CAMBIAR DATOS GENERALES DE LA EVALUACIÓN
+  // ==========================================
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -114,7 +126,60 @@ function FormEvaluacion({
     });
   };
 
-  // Cambiar datos de un alumno
+  // ==========================================
+  // CAMBIAR SI EL ALUMNO REALIZÓ LA EVALUACIÓN
+  // ==========================================
+
+  const cambiarRealizoEvaluacion = (
+    alumnoId: string,
+    realizoEvaluacion: boolean,
+  ) => {
+    const resultadoExiste = formEvaluacion.resultados.find(
+      (resultado) => resultado.alumnoId === alumnoId,
+    );
+
+    if (resultadoExiste) {
+      setFormEvaluacion({
+        ...formEvaluacion,
+        resultados: formEvaluacion.resultados.map((resultado) =>
+          resultado.alumnoId === alumnoId
+            ? {
+                ...resultado,
+                realizoEvaluacion,
+                ...(realizoEvaluacion
+                  ? {}
+                  : {
+                      calificacion: "",
+                      nivelDesempeno: "",
+                    }),
+              }
+            : resultado,
+        ),
+      });
+
+      return;
+    }
+
+    setFormEvaluacion({
+      ...formEvaluacion,
+      resultados: [
+        ...formEvaluacion.resultados,
+        {
+          alumnoId,
+          realizoEvaluacion,
+          calificacion: "",
+          nivelDesempeno: "",
+          observaciones: realizoEvaluacion ? "" : "No presentó la evaluación",
+          manifestaciones: [],
+        },
+      ],
+    });
+  };
+
+  // ==========================================
+  // CAMBIAR DATOS DE UN ALUMNO
+  // ==========================================
+
   const cambiarResultado = (
     alumnoId: string,
     campo: "calificacion" | "nivelDesempeno" | "observaciones",
@@ -146,6 +211,7 @@ function FormEvaluacion({
         ...formEvaluacion.resultados,
         {
           alumnoId,
+          realizoEvaluacion: true,
           calificacion: campo === "calificacion" ? value : "",
           nivelDesempeno: campo === "nivelDesempeno" ? value : "",
           observaciones: campo === "observaciones" ? value : "",
@@ -155,7 +221,10 @@ function FormEvaluacion({
     });
   };
 
-  // Cambiar manifestación de un PDA
+  // ==========================================
+  // CAMBIAR MANIFESTACIÓN DE UN PDA
+  // ==========================================
+
   const cambiarManifestacion = (
     alumnoId: string,
     pdaId: string,
@@ -173,6 +242,7 @@ function FormEvaluacion({
           ...formEvaluacion.resultados,
           {
             alumnoId,
+            realizoEvaluacion: true,
             calificacion: "",
             nivelDesempeno: "",
             observaciones: "",
@@ -189,7 +259,7 @@ function FormEvaluacion({
       return;
     }
 
-    // Verificar si ya existe la manifestación de ese PDA
+    // Verificar si ya existe la manifestación
     const manifestacionExiste = resultadoExiste.manifestaciones.find(
       (manifestacion) => manifestacion.pdaId === pdaId,
     );
@@ -239,23 +309,55 @@ function FormEvaluacion({
     });
   };
 
+  // ==========================================
+  // GUARDAR EVALUACIÓN
+  // ==========================================
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Las evaluaciones normales requieren ambos tipos de evaluación
+    // ==========================================
+    // VALIDAR EVALUACIONES NORMALES
+    // ==========================================
+
     if (formEvaluacion.instrumento !== "ContenidosPDA") {
       const resultadosIncompletos = alumnos.some((alumno) => {
         const resultado = formEvaluacion.resultados.find(
           (resultado) => resultado.alumnoId === alumno._id,
         );
 
-        return !resultado?.calificacion || !resultado?.nivelDesempeno;
+        // Si no realizó la evaluación, no necesita calificación
+        if (!resultado?.realizoEvaluacion) {
+          return false;
+        }
+
+        // Si sí realizó la evaluación,
+        // debe tener calificación y nivel
+        return !resultado.calificacion || !resultado.nivelDesempeno;
       });
 
       if (resultadosIncompletos) {
         alert(
-          "Debes registrar la calificación y el nivel de desempeño de todos los alumnos.",
+          "Debes registrar la calificación y el nivel de desempeño de todos los alumnos que realizaron la evaluación.",
         );
+
+        return;
+      }
+
+      // Verificar que todos tengan una respuesta
+      const alumnosSinRespuesta = alumnos.some((alumno) => {
+        const resultado = formEvaluacion.resultados.find(
+          (resultado) => resultado.alumnoId === alumno._id,
+        );
+
+        return !resultado;
+      });
+
+      if (alumnosSinRespuesta) {
+        alert(
+          "Debes indicar si todos los alumnos realizaron o no la evaluación.",
+        );
+
         return;
       }
     }
@@ -306,6 +408,10 @@ function FormEvaluacion({
     }
   };
 
+  // ==========================================
+  // OBTENER ESCUELAS AL CARGAR
+  // ==========================================
+
   useEffect(() => {
     obtenerEscuelas();
   }, []);
@@ -321,7 +427,10 @@ function FormEvaluacion({
       )}
 
       <div className="my-auto max-h-[95vh] w-full max-w-6xl overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:max-h-[90vh] sm:p-6 lg:p-8">
+        {/* ========================================== */}
         {/* ENCABEZADO */}
+        {/* ========================================== */}
+
         <div className="mb-6 flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
@@ -347,10 +456,13 @@ function FormEvaluacion({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* ========================================== */}
           {/* DATOS DE LA EVALUACIÓN */}
+          {/* ========================================== */}
 
           <div className="grid gap-4 md:grid-cols-3">
             {/* NOMBRE */}
+
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Nombre</span>
 
@@ -365,6 +477,7 @@ function FormEvaluacion({
             </label>
 
             {/* FECHA */}
+
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Fecha</span>
 
@@ -378,6 +491,7 @@ function FormEvaluacion({
             </label>
 
             {/* INSTRUMENTO */}
+
             <label className="block">
               <span className="text-sm font-medium text-slate-700">
                 Instrumento
@@ -390,10 +504,15 @@ function FormEvaluacion({
                 className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               >
                 <option value="">Selecciona</option>
+
                 <option value="Examen">Examen</option>
+
                 <option value="Rúbrica">Rúbrica</option>
+
                 <option value="Lista de cotejo">Lista de cotejo</option>
+
                 <option value="Proyecto">Proyecto</option>
+
                 <option value="Observación">Observación</option>
 
                 {filtroEscuela.map((e) => {
@@ -410,7 +529,8 @@ function FormEvaluacion({
               </select>
             </label>
 
-            {/* OBSERVACIONES GENERALES DEL GRUPO */}
+            {/* OBSERVACIONES GENERALES */}
+
             <label className="block md:col-span-3">
               <span className="text-sm font-medium text-slate-700">
                 Observaciones generales del grupo
@@ -427,7 +547,9 @@ function FormEvaluacion({
             </label>
           </div>
 
+          {/* ========================================== */}
           {/* TIPO DE EVALUACIÓN */}
+          {/* ========================================== */}
 
           {formEvaluacion.instrumento !== "ContenidosPDA" &&
             formEvaluacion.instrumento !== "" && (
@@ -437,14 +559,16 @@ function FormEvaluacion({
                 </p>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Las evaluaciones normales registran obligatoriamente la
-                  información cuantitativa y cualitativa. El docente puede
-                  decidir posteriormente cuál utilizar.
+                  Las evaluaciones normales registran información cuantitativa y
+                  cualitativa. Los alumnos que no realizaron la evaluación no
+                  reciben calificación y no participan en el promedio.
                 </p>
               </div>
             )}
 
+          {/* ========================================== */}
           {/* CONTENIDOS Y PDA */}
+          {/* ========================================== */}
 
           {formEvaluacion.instrumento === "ContenidosPDA" && (
             <div className="space-y-6">
@@ -469,7 +593,7 @@ function FormEvaluacion({
                       <tbody>
                         {filtro.map((f) => (
                           <Fragment key={f.id}>
-                            {/* Campo formativo */}
+                            {/* CAMPO FORMATIVO */}
 
                             <tr>
                               <td
@@ -480,7 +604,7 @@ function FormEvaluacion({
                               </td>
                             </tr>
 
-                            {/* Encabezados */}
+                            {/* ENCABEZADOS */}
 
                             <tr>
                               <th className="w-1/2 border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-600">
@@ -492,7 +616,7 @@ function FormEvaluacion({
                               </th>
                             </tr>
 
-                            {/* PDAs */}
+                            {/* PDAS */}
 
                             {f.contenidos.map((c) =>
                               c.pdas.map((p) => {
@@ -546,16 +670,22 @@ function FormEvaluacion({
             </div>
           )}
 
+          {/* ========================================== */}
           {/* TABLA DE INSTRUMENTOS NORMALES */}
+          {/* ========================================== */}
 
           {formEvaluacion.instrumento !== "ContenidosPDA" &&
             formEvaluacion.instrumento !== "" && (
               <div className="overflow-x-auto rounded-xl border border-slate-200">
-                <table className="w-full min-w-[900px]">
+                <table className="w-full min-w-[1100px]">
                   <thead className="bg-slate-50">
                     <tr>
                       <th className="min-w-[220px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
                         Alumno
+                      </th>
+
+                      <th className="min-w-[180px] px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                        ¿Realizó la evaluación?
                       </th>
 
                       <th className="w-32 px-4 py-3 text-left text-sm font-semibold text-slate-700">
@@ -578,14 +708,57 @@ function FormEvaluacion({
                         (resultado) => resultado.alumnoId === alumno._id,
                       );
 
+                      const realizoEvaluacion =
+                        resultado?.realizoEvaluacion ?? false;
+
                       return (
                         <tr
                           key={alumno._id}
                           className="border-t border-slate-200"
                         >
+                          {/* ALUMNO */}
+
                           <td className="px-4 py-3 text-sm font-medium text-slate-800">
                             {alumno.nombre} {alumno.apellidoPaterno}{" "}
                             {alumno.apellidoMaterno}
+                          </td>
+
+                          {/* ¿REALIZÓ LA EVALUACIÓN? */}
+
+                          <td className="px-4 py-3">
+                            <div className="flex flex-col gap-2">
+                              <label className="flex cursor-pointer items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name={`realizo-${alumno._id}`}
+                                  checked={realizoEvaluacion === true}
+                                  onChange={() =>
+                                    cambiarRealizoEvaluacion(alumno._id, true)
+                                  }
+                                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                                />
+
+                                <span className="text-sm text-slate-700">
+                                  Sí
+                                </span>
+                              </label>
+
+                              <label className="flex cursor-pointer items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name={`realizo-${alumno._id}`}
+                                  checked={realizoEvaluacion === false}
+                                  onChange={() =>
+                                    cambiarRealizoEvaluacion(alumno._id, false)
+                                  }
+                                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                                />
+
+                                <span className="text-sm text-slate-700">
+                                  No
+                                </span>
+                              </label>
+                            </div>
                           </td>
 
                           {/* CUANTITATIVA */}
@@ -605,8 +778,9 @@ function FormEvaluacion({
                                 )
                               }
                               placeholder="0 - 10"
-                              required
-                              className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              disabled={!realizoEvaluacion}
+                              required={realizoEvaluacion}
+                              className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                             />
                           </td>
 
@@ -622,8 +796,9 @@ function FormEvaluacion({
                                   e.target.value,
                                 )
                               }
-                              required
-                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              disabled={!realizoEvaluacion}
+                              required={realizoEvaluacion}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                             >
                               <option value="">Selecciona</option>
 
@@ -643,7 +818,7 @@ function FormEvaluacion({
                             </select>
                           </td>
 
-                          {/* OBSERVACIONES OPCIONALES */}
+                          {/* OBSERVACIONES */}
 
                           <td className="px-4 py-3">
                             <textarea
@@ -656,7 +831,11 @@ function FormEvaluacion({
                                 )
                               }
                               rows={2}
-                              placeholder="Observaciones opcionales..."
+                              placeholder={
+                                realizoEvaluacion
+                                  ? "Observaciones opcionales..."
+                                  : "Ej. No presentó la evaluación"
+                              }
                               className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                             />
                           </td>
@@ -668,7 +847,9 @@ function FormEvaluacion({
               </div>
             )}
 
+          {/* ========================================== */}
           {/* BOTONES */}
+          {/* ========================================== */}
 
           <div className="flex flex-col-reverse gap-2 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
             <button

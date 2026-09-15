@@ -76,7 +76,6 @@ function SeccionAlumnos({
       return nombreCompleto.includes(busquedaAlumno.toLowerCase());
     })
     .sort((a, b) => {
-      // Primero por apellido paterno
       const apellidoPaterno = a.apellidoPaterno.localeCompare(
         b.apellidoPaterno,
         "es",
@@ -87,7 +86,6 @@ function SeccionAlumnos({
         return apellidoPaterno;
       }
 
-      // Si el paterno es igual, ordenar por apellido materno
       const apellidoMaterno = a.apellidoMaterno.localeCompare(
         b.apellidoMaterno,
         "es",
@@ -98,7 +96,6 @@ function SeccionAlumnos({
         return apellidoMaterno;
       }
 
-      // Si ambos apellidos son iguales, ordenar por nombre
       return a.nombre.localeCompare(b.nombre, "es", {
         sensitivity: "base",
       });
@@ -304,23 +301,47 @@ function SeccionAlumnos({
 
   const resultadosEvaluacion = evaluacionSeleccionada?.resultados ?? [];
 
+  /*
+   * Solo cuentan para el promedio los alumnos que:
+   *
+   * 1. Tienen resultado en esta evaluación.
+   * 2. Sí realizaron la evaluación.
+   * 3. Tienen una calificación válida.
+   */
   const resultadosConCalificacion = resultadosEvaluacion.filter(
-    (resultado) => resultado.calificacion !== "",
+    (resultado) =>
+      resultado.realizoEvaluacion === true &&
+      resultado.calificacion !== "" &&
+      !isNaN(Number(resultado.calificacion)),
   );
-
-  // const resultadosConNivel = resultadosEvaluacion.filter(
-  //   (resultado) => resultado.nivelDesempeno !== "",
-  // );
 
   const promedioEvaluacion =
     resultadosConCalificacion.length > 0
       ? resultadosConCalificacion.reduce(
-          (total, resultado) => total + Number(resultado.calificacion || 0),
+          (total, resultado) => total + Number(resultado.calificacion),
           0,
         ) / resultadosConCalificacion.length
       : 0;
 
-  const alumnosConResultado = resultadosEvaluacion.length;
+  /*
+   * Alumnos que realmente realizaron la evaluación.
+   */
+  const alumnosEvaluados = resultadosEvaluacion.filter(
+    (resultado) => resultado.realizoEvaluacion === true,
+  ).length;
+
+  /*
+   * Alumnos registrados en la evaluación pero
+   * que no la realizaron.
+   */
+  const alumnosNoEvaluados = resultadosEvaluacion.filter(
+    (resultado) => resultado.realizoEvaluacion === false,
+  ).length;
+
+  /*
+   * Total de alumnos que tienen resultado guardado.
+   */
+  // const alumnosConResultado = resultadosEvaluacion.length;
 
   /* =========================================================
      ATENCIÓN REQUERIDA
@@ -735,12 +756,20 @@ function SeccionAlumnos({
               </select>
 
               {evaluacionSeleccionada && (
-                <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="mt-4 grid grid-cols-3 gap-2">
                   <div className="rounded-lg bg-indigo-50 p-3">
-                    <p className="text-xs text-indigo-600">Alumnos evaluados</p>
+                    <p className="text-xs text-indigo-600">Evaluados</p>
 
                     <p className="mt-1 text-lg font-bold text-indigo-700">
-                      {alumnosConResultado}
+                      {alumnosEvaluados}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg bg-amber-50 p-3">
+                    <p className="text-xs text-amber-600">No realizaron</p>
+
+                    <p className="mt-1 text-lg font-bold text-amber-700">
+                      {alumnosNoEvaluados}
                     </p>
                   </div>
 
@@ -965,7 +994,7 @@ function SeccionAlumnos({
 
                 {vistaAlumnos === "evaluaciones" && (
                   <>
-                    <th className="px-4 py-3 font-semibold">Calificación</th>
+                    <th className="px-4 py-3 font-semibold">Resultado</th>
 
                     <th className="px-4 py-3 font-semibold">
                       Nivel de desempeño
@@ -1030,7 +1059,7 @@ function SeccionAlumnos({
                 </>
               ) : (
                 <>
-                  {alumnosOrdenados.map((alumno) => {
+                  {alumnosOrdenados.map((alumno, index) => {
                     const asistencia = obtenerEstadoAsistencia(alumno);
 
                     const actividades = obtenerEstadoActividades(alumno);
@@ -1043,7 +1072,7 @@ function SeccionAlumnos({
                         className="transition hover:bg-slate-50"
                       >
                         <td className="w-12 px-3 py-4 text-center text-sm text-slate-400">
-                          {alumnosOrdenados.indexOf(alumno) + 1}
+                          {index + 1}
                         </td>
 
                         {/* ALUMNO */}
@@ -1104,9 +1133,11 @@ function SeccionAlumnos({
                           </>
                         )}
 
+                        {/* EVALUACIONES */}
+
                         {vistaAlumnos === "evaluaciones" && (
                           <>
-                            {/* CALIFICACIÓN */}
+                            {/* RESULTADO */}
 
                             <td className="px-4 py-4 text-sm">
                               {!evaluacionSeleccionada ? (
@@ -1114,8 +1145,12 @@ function SeccionAlumnos({
                                   Selecciona una evaluación
                                 </span>
                               ) : !resultado ? (
-                                <span className="text-slate-400">
-                                  Sin resultado
+                                <span className="font-medium text-slate-400">
+                                  No estaba inscrito
+                                </span>
+                              ) : resultado.realizoEvaluacion === false ? (
+                                <span className="font-medium text-amber-600">
+                                  No realizó la evaluación
                                 </span>
                               ) : (
                                 <span className="font-semibold text-indigo-600">
@@ -1133,8 +1168,10 @@ function SeccionAlumnos({
                                 </span>
                               ) : !resultado ? (
                                 <span className="text-slate-400">
-                                  Sin resultado
+                                  No estaba inscrito
                                 </span>
+                              ) : resultado.realizoEvaluacion === false ? (
+                                <span className="text-slate-400">—</span>
                               ) : (
                                 <span className="font-medium text-slate-700">
                                   {resultado.nivelDesempeno ||
@@ -1146,7 +1183,22 @@ function SeccionAlumnos({
                             {/* OBSERVACIONES */}
 
                             <td className="max-w-md px-4 py-4 text-sm text-slate-600">
-                              {resultado?.observaciones || "Sin observaciones"}
+                              {!evaluacionSeleccionada ? (
+                                <span className="text-slate-400">
+                                  Selecciona una evaluación
+                                </span>
+                              ) : !resultado ? (
+                                <span className="text-slate-400">
+                                  No estaba inscrito
+                                </span>
+                              ) : resultado.realizoEvaluacion === false ? (
+                                <span className="text-amber-600">
+                                  {resultado.observaciones ||
+                                    "No presentó la evaluación"}
+                                </span>
+                              ) : (
+                                resultado.observaciones || "Sin observaciones"
+                              )}
                             </td>
                           </>
                         )}
