@@ -110,7 +110,7 @@ function FormEvaluacion({
     .filter((campo) => campo.contenidos.length > 0);
 
   // ==========================================
-  // CAMBIAR DATOS GENERALES DE LA EVALUACIÓN
+  // CAMBIAR DATOS GENERALES
   // ==========================================
 
   const handleChange = (
@@ -146,6 +146,9 @@ function FormEvaluacion({
             ? {
                 ...resultado,
                 realizoEvaluacion,
+
+                // Si cambia a "No realizó",
+                // se elimina calificación y nivel.
                 ...(realizoEvaluacion
                   ? {}
                   : {
@@ -321,18 +324,23 @@ function FormEvaluacion({
     // ==========================================
 
     if (formEvaluacion.instrumento !== "ContenidosPDA") {
+      // ------------------------------------------
+      // VALIDAR QUE LOS QUE SÍ REALIZARON
+      // TENGAN CALIFICACIÓN Y NIVEL
+      // ------------------------------------------
+
       const resultadosIncompletos = alumnos.some((alumno) => {
         const resultado = formEvaluacion.resultados.find(
-          (resultado) => resultado.alumnoId === alumno._id,
+          (resultado) => String(resultado.alumnoId) === String(alumno._id),
         );
 
-        // Si no realizó la evaluación, no necesita calificación
-        if (!resultado?.realizoEvaluacion) {
+        // Si no realizó o todavía no ha respondido,
+        // no necesita calificación ni nivel.
+        if (resultado?.realizoEvaluacion !== true) {
           return false;
         }
 
-        // Si sí realizó la evaluación,
-        // debe tener calificación y nivel
+        // Si sí realizó, ambos campos son obligatorios.
         return !resultado.calificacion || !resultado.nivelDesempeno;
       });
 
@@ -344,13 +352,26 @@ function FormEvaluacion({
         return;
       }
 
-      // Verificar que todos tengan una respuesta
+      // ------------------------------------------
+      // VALIDAR QUE TODOS HAYAN RESPONDIDO SÍ O NO
+      // ------------------------------------------
+
       const alumnosSinRespuesta = alumnos.some((alumno) => {
         const resultado = formEvaluacion.resultados.find(
-          (resultado) => resultado.alumnoId === alumno._id,
+          (resultado) => String(resultado.alumnoId) === String(alumno._id),
         );
 
-        return !resultado;
+        // No existe resultado
+        if (!resultado) {
+          return true;
+        }
+
+        // Existe, pero todavía no seleccionó Sí o No
+        if (resultado.realizoEvaluacion === null) {
+          return true;
+        }
+
+        return false;
       });
 
       if (alumnosSinRespuesta) {
@@ -708,8 +729,11 @@ function FormEvaluacion({
                         (resultado) => resultado.alumnoId === alumno._id,
                       );
 
+                      // null = todavía no ha respondido
+                      // true = sí realizó
+                      // false = no realizó
                       const realizoEvaluacion =
-                        resultado?.realizoEvaluacion ?? false;
+                        resultado?.realizoEvaluacion ?? null;
 
                       return (
                         <tr
@@ -758,6 +782,12 @@ function FormEvaluacion({
                                   No
                                 </span>
                               </label>
+
+                              {realizoEvaluacion === null && (
+                                <span className="text-xs text-amber-600">
+                                  Pendiente
+                                </span>
+                              )}
                             </div>
                           </td>
 
@@ -778,8 +808,8 @@ function FormEvaluacion({
                                 )
                               }
                               placeholder="0 - 10"
-                              disabled={!realizoEvaluacion}
-                              required={realizoEvaluacion}
+                              disabled={realizoEvaluacion !== true}
+                              required={realizoEvaluacion === true}
                               className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                             />
                           </td>
@@ -796,8 +826,8 @@ function FormEvaluacion({
                                   e.target.value,
                                 )
                               }
-                              disabled={!realizoEvaluacion}
-                              required={realizoEvaluacion}
+                              disabled={realizoEvaluacion !== true}
+                              required={realizoEvaluacion === true}
                               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                             >
                               <option value="">Selecciona</option>
@@ -832,7 +862,7 @@ function FormEvaluacion({
                               }
                               rows={2}
                               placeholder={
-                                realizoEvaluacion
+                                realizoEvaluacion === true
                                   ? "Observaciones opcionales..."
                                   : "Ej. No presentó la evaluación"
                               }
